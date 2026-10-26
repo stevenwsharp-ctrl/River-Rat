@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0b1f26">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>River Run</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233f7f6f'/%3E%3Cpath d='M8 40 Q20 30 32 40 T56 40' stroke='white' stroke-width='5' fill='none'/%3E%3Crect x='24' y='14' width='16' height='26' rx='8' fill='%23f0b429'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#0b1f26;--panel:#12303a;--ink:#eaf4f2;--mute:#9fbcbc;--acc:#ffb347;--ok:#5fd38d;--bad:#ff6b5b;--line:#24505c}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden;overscroll-behavior:none}
+canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+canvas#g3{position:fixed;inset:0;width:100%;height:100%;display:none;z-index:1;touch-action:none}
+.screen{position:fixed;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:max(18px,env(safe-area-inset-top)) 16px 60px;background:radial-gradient(circle at 30% 0%,#1d4a55 0%,#0b1f26 65%);z-index:30}
+.wrap{max-width:1040px;margin:0 auto}
+h1{font-size:clamp(34px,8vw,60px);margin:4px 0 0;letter-spacing:1px;line-height:1.05}
+h1 span{color:var(--acc)}
+.sub{color:var(--mute);margin:8px 0 10px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:2px;color:var(--acc);margin:24px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.craftgrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;transition:transform .12s,border-color .12s;position:relative;user-select:none}
+.card:hover{transform:translateY(-2px)}
+.card.sel{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,179,71,.18)}
+.card.dim{opacity:.45;cursor:default}
+.card h3{margin:0 0 3px;font-size:17px}
+.card .where{font-size:12px;color:#cfe3e0;margin-bottom:4px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:#0b1f26;color:var(--acc);margin-bottom:6px;font-weight:800;letter-spacing:1px}
+.card p{margin:4px 0 0;font-size:13px;color:var(--mute);line-height:1.35}
+.card canvas{display:block;margin:0 auto 4px}
+.lb{background:#0b1f26;border-radius:10px;padding:8px 10px;margin-top:8px}
+.lbh{font-size:11px;font-weight:800;letter-spacing:1px;color:var(--acc);text-transform:uppercase;margin:4px 0}
+.lbr{display:grid;grid-template-columns:1fr auto auto;gap:8px;font-size:13px;padding:2px 0}
+.lbr span:nth-child(2){color:var(--mute);font-size:11px;align-self:center}
+.lbr b{color:#fff}
+.lbr.empty{display:block;color:var(--mute);font-style:italic}
+.lbf{font-size:13px;margin-top:4px;color:#cfe3e0}
+.run{display:block;width:100%;margin-top:10px;padding:10px;border:none;border-radius:10px;background:var(--ok);color:#06210f;font-weight:900;font-size:15px;cursor:pointer}
+.note2{margin-top:10px;font-size:12px;color:var(--bad)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:var(--panel);border:2px solid var(--line);border-radius:30px;padding:10px 16px;cursor:pointer;font-weight:700;color:var(--ink);font-size:15px}
+.pill small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+.pill.wide{border-radius:14px;text-align:left;max-width:320px}
+.pill.sel{border-color:var(--acc)}
+button{font:inherit}
+.big{display:block;width:100%;max-width:440px;margin:22px auto 10px;padding:16px;font-size:19px;font-weight:800;border:none;border-radius:14px;background:linear-gradient(180deg,#ffc46b,#f39a1e);color:#2a1700;cursor:pointer;box-shadow:0 6px 0 #a8630c}
+.big:active{transform:translateY(3px);box-shadow:0 3px 0 #a8630c}
+.big:disabled{opacity:.5}
+.ghost{background:transparent;border:2px solid var(--line);color:var(--ink);border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;margin:6px}
+.ghost.sel{border-color:var(--ok)}
+.topbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.topbar input{background:var(--panel);border:2px solid var(--line);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:15px;width:170px}
+details{background:var(--panel);border-radius:12px;padding:12px 14px;margin-top:14px;border:1px solid var(--line)}
+summary{cursor:pointer;font-weight:700}
+details li{margin:4px 0;color:#cfe3e0;font-size:14px}
+.note{font-size:12px;color:var(--mute);margin-top:16px;text-align:center}
+.mute{color:var(--mute);font-size:13px}
+.season{background:#16384a;border-left:4px solid var(--acc);padding:8px 12px;border-radius:8px;font-size:13px;color:#d6ebe8;margin-top:8px}
+
+#hud{position:fixed;top:0;left:0;right:0;display:none;gap:8px;justify-content:space-between;align-items:flex-start;padding:max(8px,env(safe-area-inset-top)) 10px 8px;z-index:10;pointer-events:none;background:linear-gradient(180deg,rgba(5,15,20,.75),rgba(5,15,20,0));font-size:13px;text-shadow:0 1px 2px #000}
+#hud .bigt{font-size:20px;font-weight:800}
+#hud .hc{text-align:center;flex:1}
+#hud .hr{text-align:right;min-width:120px}
+#hNext{font-weight:700;color:var(--acc)}
+#hAngle{font-weight:800;margin-top:2px;letter-spacing:1px}
+#hCrew{margin-top:4px}
+.chip{display:inline-block;min-width:20px;height:20px;border-radius:10px;font-size:11px;font-weight:800;text-align:center;line-height:20px;margin-left:2px;padding:0 4px;color:#fff}
+.chip.food{background:#2a4e5a}
+.bar{width:110px;height:8px;background:rgba(255,255,255,.2);border-radius:5px;overflow:hidden;margin:4px 0 0 auto}
+#hHp{height:100%;width:100%;background:var(--ok);transition:width .2s}
+.hbtns{position:fixed;right:10px;top:calc(max(8px,env(safe-area-inset-top)) + 80px);display:none;flex-direction:column;gap:6px;z-index:11}
+.hbtns button.on{background:rgba(255,179,71,.7)}
+.hbtns button{pointer-events:auto;width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(10,30,40,.55);color:#fff;font-size:16px;cursor:pointer}
+#banner{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 76px);transform:translateX(-50%);width:min(92vw,520px);background:rgba(12,34,42,.92);border:2px solid var(--acc);border-radius:14px;padding:10px 14px;z-index:12;display:none;cursor:pointer}
+#banner .bt{font-weight:800;font-size:18px}
+#banner .bc{color:var(--acc);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+#banner .bb{font-size:14px;color:#d6ebe8;margin-top:4px;line-height:1.35}
+#fact{position:fixed;left:10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 110px);width:min(80vw,380px);background:rgba(60,40,20,.93);border:2px solid #f2e3c4;border-radius:12px;padding:10px 12px;z-index:12;display:none;cursor:pointer}
+#fact .fk{font-size:11px;font-weight:800;letter-spacing:1px;color:#f2c98a;text-transform:uppercase}
+#fact .ft{font-weight:800;font-size:16px;margin:2px 0}
+#fact .fb{font-size:13px;line-height:1.4;color:#f6ecd8}
+#toast{position:fixed;left:0;right:0;top:36%;text-align:center;font-size:clamp(22px,5vw,38px);font-weight:900;z-index:12;pointer-events:none;opacity:0;transition:opacity .25s;text-shadow:0 3px 8px #000,0 0 2px #000;padding:0 16px}
+#controls{position:fixed;bottom:0;left:0;right:0;display:none;justify-content:space-between;align-items:flex-end;padding:12px 14px max(14px,env(safe-area-inset-bottom));z-index:10;pointer-events:none}
+#controls .grp{display:flex;gap:12px}
+#controls .col{flex-direction:column}
+.cbtn{pointer-events:auto;width:76px;height:76px;border-radius:50%;background:rgba(10,30,40,.45);border:2px solid rgba(255,255,255,.4);color:#fff;font-size:28px;font-weight:800;user-select:none;-webkit-user-select:none;touch-action:none;display:flex;align-items:center;justify-content:center;flex-direction:column;line-height:1}
+.cbtn small{font-size:10px;font-weight:700;margin-top:3px;letter-spacing:1px}
+.cbtn.on{background:rgba(255,179,71,.6)}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:9;transition:opacity .5s}
+#p3d{position:fixed;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 190px);transform:translateX(-50%);width:min(92vw,520px);text-align:center;background:rgba(8,24,30,.85);border:2px solid #5fd38d;border-radius:14px;padding:10px 14px;z-index:12;display:none;pointer-events:none}
+#p3d b{display:block;font-size:20px;color:#5fd38d;letter-spacing:1px}
+#p3d span{font-size:14px;color:#d6ebe8}
+#stroke{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(max(14px,env(safe-area-inset-bottom)) + 100px);width:180px;z-index:11;display:none;pointer-events:none;text-align:center;font-size:12px;font-weight:800;text-shadow:0 1px 2px #000}
+#stroke .sb{height:10px;background:rgba(255,255,255,.2);border-radius:6px;overflow:hidden;margin-top:3px}
+#stroke .sf{height:100%;width:100%;background:#ffb347}
+#tag3d{position:fixed;left:10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 100px);z-index:11;display:none;font-weight:900;font-size:12px;letter-spacing:2px;color:#5fd38d;text-shadow:0 1px 3px #000;pointer-events:none}
+#pause,#end,#lbScreen,#pageScreen,#outfit{display:none;z-index:40}
+#pageScreen{background:radial-gradient(circle at 20% 0%,#4a3520 0%,#1a1209 70%)}
+#pageScreen .wrap{max-width:720px}
+#pageScreen p{font-size:17px;line-height:1.6;color:#f3e7d2}
+.pk{font-size:12px;font-weight:800;letter-spacing:2px;color:var(--acc);text-transform:uppercase;margin-top:10px}
+#campScreen{position:fixed;inset:0;z-index:40;display:none}
+#campCv{position:absolute;inset:0;width:100%;height:100%}
+#campPanel{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:min(96vw,720px);max-height:62vh;overflow-y:auto;background:rgba(8,14,24,.86);border:1px solid rgba(255,255,255,.15);border-radius:16px 16px 0 0;padding:14px 18px max(16px,env(safe-area-inset-bottom))}
+#campPanel h1{font-size:clamp(24px,5vw,36px)}
+#campPanel p{margin:6px 0;line-height:1.45;color:#dfe9f0}
+#campPanel .big{margin:14px 0 6px;max-width:none}
+.cbtns{display:flex;flex-direction:column;gap:4px}
+.cbtns .ghost{margin:3px 0}
+.bad{color:var(--bad)}
+.campfact{background:rgba(255,179,71,.12);border-left:3px solid var(--acc);padding:8px 10px;border-radius:6px;margin:8px 0;font-size:14px;color:#f6ecd8}
+.crewgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin:10px 0}
+.cm{background:rgba(255,255,255,.06);border-radius:8px;padding:6px 8px;font-size:13px}
+.cm small{display:block;color:var(--mute);font-size:11px}
+.cm.gone{opacity:.45}
+.hpb{height:6px;background:rgba(255,255,255,.15);border-radius:4px;overflow:hidden;margin:3px 0}
+.hpb i{display:block;height:100%}
+.center{text-align:center}
+.stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;max-width:520px;margin:16px auto}
+.stats div{background:var(--panel);border-radius:10px;padding:10px}
+.stats b{display:block;font-size:22px}
+.grade{font-size:90px;font-weight:900;color:var(--acc);line-height:1;margin:10px 0}
+.rank{font-weight:800;color:var(--ok);margin:4px 0}
+.suprow{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel);border-radius:10px;padding:10px 12px;margin:6px 0}
+.qty{display:flex;align-items:center;gap:8px}
+.qty button{width:34px;height:34px;border-radius:8px;border:none;background:var(--line);color:#fff;font-size:18px;cursor:pointer}
+.qty span{min-width:26px;text-align:center;font-weight:800}
+.budget{font-size:16px;margin:6px 0}
+.budget.bad b{color:var(--bad)}
+.crewin input{width:100%;margin-top:4px;background:#0b1f26;border:1px solid var(--line);color:#fff;border-radius:8px;padding:8px}
+.crewin small{color:var(--mute)}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<canvas id="g3"></canvas>
+<div id="flash"></div>
+<div id="p3d"></div>
+<div id="stroke"><span id="strokeTxt">STROKE</span><div class="sb"><div class="sf" id="strokeFill"></div></div></div>
+<div id="tag3d">3D</div>
+
+<div id="hud">
+  <div class="hl"><div id="hRiver"></div><div id="hMile" class="bigt"></div><div id="hTime" class="mute"></div></div>
+  <div class="hc"><div id="hNext"></div><div id="hAngle"></div></div>
+  <div class="hr"><div><span id="hScore" class="bigt">0</span></div><div id="hSwims"></div><div class="bar"><div id="hHp"></div></div><div id="hCrew"></div></div>
+</div>
+<div class="hbtns" id="hbtns"><button id="bPause" title="Pause">❚❚</button><button id="bMute" title="Sound">🔊</button><button id="bFF" title="Fast-forward in calm water (F)">⏩</button></div>
+<div id="banner"></div>
+<div id="fact"></div>
+<div id="toast"></div>
+<div id="controls">
+  <div class="grp"><button class="cbtn" data-k="left">⟲<small>TURN</small></button><button class="cbtn" data-k="right">⟳<small>TURN</small></button></div>
+  <div class="grp col"><button class="cbtn" data-k="push">▲<small>PUSH</small></button><button class="cbtn" data-k="pull">▼<small>PULL</small></button></div>
+</div>
+
+<div id="menu" class="screen"><div class="wrap">
+  <h1>River <span>Run</span></h1>
+  <div class="sub">Read the water. Square up to the waves. Do not swim.</div>
+  <div class="topbar">
+    <input id="pname" maxlength="18" placeholder="Your name" aria-label="Your name for leaderboards">
+    <button class="ghost" id="lbBtn">🏆 Leaderboards</button>
+    <button class="ghost" id="factsBtn">📜 History & facts: ON</button>
+  </div>
+  <h2>1 · Trip type</h2>
+  <div id="modes" class="row"></div>
+  <h2>2 · Pick your craft</h2>
+  <div id="crafts" class="grid craftgrid"></div>
+  <h2>3 · Pick your river <span class="mute" style="text-transform:none;letter-spacing:0">(top runs shown — tap ▶ to play)</span></h2>
+  <div id="rivers" class="grid"></div>
+  <div class="season" id="seasonNote"></div>
+  <h2>4 · Water level</h2>
+  <div id="levels" class="row"></div>
+  <h2>5 · 3D rapids</h2>
+  <div id="d3" class="row"></div>
+  <button class="big" id="startBtn">Launch</button>
+  <details><summary>How to play</summary><ul>
+    <li><b>Keyboard:</b> ← → or A / D turn · ↑ or W push (row forward) · ↓ or S pull (back-row) · Space / P / Esc pause.</li>
+    <li><b>Mouse:</b> hold LEFT button to row toward the pointer · hold RIGHT button to pull (back-row) toward the pointer · double-click and hold to square up to the current · mouse wheel to turn. In 3D, each click is a stroke.</li>
+    <li><b>Fast-forward:</b> ⏩ button or F key in calm water. It turns off by itself before rapids, camps and markers.</li>
+    <li><b>Phone:</b> ⟲ ⟳ to turn, PUSH and PULL to row.</li>
+    <li><b>Ferry:</b> angle the boat and PULL to move across the current. This is the real oarsman move.</li>
+    <li><b>Square up:</b> hit waves and holes straight (bow or stern first). The ring around your boat turns green when your angle is safe.</li>
+    <li><b>Read the water:</b> a smooth V pointing downstream is the safe tongue. A V pointing upstream has a rock at its tip. Holes have a white pile and a dark edge. Pour-overs have a smooth hump before the hole. Boils push water out and spin you.</li>
+    <li><b>Eddies:</b> water behind rocks, on the inside of bends and at camp beaches flows upstream. Crossing an eddy line spins the boat.</li>
+    <li><b>Man overboard:</b> big hits can throw a crew member out. Row to the orange swimmer to pull them back in.</li>
+    <li><b>3D mode:</b> near big rapids, landmarks and bridges the view goes 3D and you must really paddle. Raft: assisted. Kayak: alternate L / R strokes. Dory: L / R oar to pivot, BOTH for power, BACK to pull away. Tube: kick.</li>
+    <li><b>Overnight / Expedition:</b> land at a camp by pulling into the eddy and touching the beach. In Expedition, manage food, water, health and morale.</li>
+  </ul></details>
+  <div class="note">Rapid names, order, camps and history follow the real rivers. Miles are close but some are approximate. Rapid layouts are game versions, not a river guide. Always scout with a real guidebook and get your permits.</div>
+</div></div>
+
+<div id="lbScreen" class="screen"><div class="wrap" id="lbWrap"></div></div>
+<div id="pageScreen" class="screen"><div class="wrap" id="pageWrap"></div></div>
+<div id="outfit" class="screen"><div class="wrap" id="outfitWrap"></div></div>
+<div id="campScreen"><canvas id="campCv"></canvas><div id="campPanel"></div></div>
+
+<div id="pause" class="screen"><div class="wrap center">
+  <h1>Paused</h1><div class="sub" id="pauseInfo"></div>
+  <button class="big" id="resumeBtn">Resume</button>
+  <button class="ghost" id="pFacts">History & facts: ON</button>
+  <button class="ghost" id="restartBtn">Restart run</button>
+  <button class="ghost" id="menuBtn">Main menu</button>
+</div></div>
+
+<div id="end" class="screen"><div class="wrap center" id="endWrap"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="rivers.js"></script>
+<script src="game.js"></script>
+<script src="trip.js"></script>
+<script src="three-d.js"></script>
+<script>boot();</script>
+</body>
+</html>
