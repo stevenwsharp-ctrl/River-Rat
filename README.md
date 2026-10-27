@@ -15,6 +15,19 @@ Put all of these files in the root of your GitHub repository (6 code files plus 
 | `scenes.js` | Animated painted scenes for history pages, stops, take-outs and dangers. |
 | `three-d.js` | The 3D view near big rapids, landmarks and bridges. |
 
+## Controls
+
+There are two control styles. Pick one on the main menu or in the pause screen.
+
+- **Arcade (default):** Steer left and right. The boat stays pointed downstream. Hold up to row forward, down to slow. Drag or click on the water to steer to that point. Boost (E, Shift or the Boost button) gives a short burst and lowers the risk in holes and waves. Steering assist slides the boat around rocks just ahead. Landings pull you in when you are near.
+- **Pro:** Real oars. Left and right oars push or pull. Pulling is stronger than pushing. In 3D, you paddle each stroke.
+
+In Arcade, a hull hit has a maximum damage, and quick repeat hits do less damage. The hull slowly repairs to 60% in calm water.
+
+## Fun features
+
+Stars and streaks for each rapid, near-miss bonus, dry bags and gold to collect, River Bucks for upgrades (Shop), daily missions, badges, a ghost of your best run, and a trip progress bar.
+
 ## Publish on GitHub Pages
 
 1. Upload all the files to the root of the repository.

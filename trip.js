@@ -97,7 +97,7 @@ const TRIP={
     const b=G.b,W=G.W,c=G.craft;
     for(const cp of o){if(cp.rejected)continue;const dy=b.y-cp.y;if(dy<-240||dy>190)continue;
       const shore=W.hw(b.y)-(b.x-W.cx(b.y))*cp.side;
-      if(cp.side*(b.x-W.cx(b.y))>0&&shore<c.r+48&&Math.hypot(b.vx,b.vy)<150){this.land(cp);return;}}
+      if(landNear(cp)){this.land(cp);return;}}
     if(!tr.warned&&o.length&&b.y>o[0].y-1600){tr.warned=true;coach('camp');toast(`⛺ Camp tonight! Pull into an eddy on the ${o[0].side<0?'left':'right'} and touch the beach.`,'#5fd38d',2.6);}
     const lastOpt=o[o.length-1];
     if(b.y>lastOpt.y+320)this.land({n:'A rocky ledge (no real camp)',m:W.mileAt(b.y),side:1,y:b.y,bad:true});

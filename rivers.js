@@ -8,15 +8,16 @@
 
 const CRAFTS={
   raft:{name:'Oar Raft',tag:'EASY',desc:'Big and heavy. Bounces off rocks. Hard to flip. Best for your first run.',
-    hp:140,rockDmg:.45,tol:55,row:230,back:320,turn:4.4,maxTurn:1.9,kLong:1.35,kLat:1.7,mass:1.5,roll:0,r:30,len:76,wid:48,crew:3},
+    hp:140,rockDmg:.45,tol:55,row:230,back:320,turn:4.4,maxTurn:1.9,kLong:1.35,kLat:1.7,mass:1.5,roll:0,r:30,len:76,wid:48,crew:3,
+    arc:{lat:150,fwd:110,back:140,cruise:20,resp:3.2,assist:9,damp:4.5}},
   kayak:{name:'Whitewater Kayak',tag:'MEDIUM',desc:'Fast and agile. Turns very quickly. Flips more easily, but you can roll back up (sometimes).',
-    hp:100,rockDmg:.6,tol:40,row:360,back:260,turn:8,maxTurn:3.3,kLong:.95,kLat:2.3,mass:.75,roll:.5,r:15,len:64,wid:18,crew:1,
+    hp:100,rockDmg:.6,tol:40,row:360,back:260,turn:8,maxTurn:3.3,kLong:.95,kLat:2.3,mass:.75,roll:.5,r:15,len:64,wid:18,crew:1,arc:{lat:190,fwd:170,back:130,cruise:30,resp:4.2,assist:12,damp:5},
     pd:{name:'PADDLE!',cd:.3,J:105,Jb:80,yaw:1.15,same:.65,bothJ:0,btn:['L','R','NEXT','BACK'],help:'Tap LEFT / RIGHT strokes and alternate them. Hold BACK + stroke to back-paddle.',keys:'A / D strokes · W next stroke · hold S to back-paddle · mouse: click to stroke'}},
   dory:{name:'Wooden Dory',tag:'HARD',desc:'The classic Grand Canyon boat. Long rocker hull tracks straight and rides waves well, but rocks crack the hull.',
-    hp:80,rockDmg:1.7,tol:33,row:280,back:380,turn:3.8,maxTurn:1.7,kLong:1.1,kLat:2.7,mass:1.6,roll:0,r:26,len:84,wid:34,crew:2,
+    hp:90,rockDmg:1.25,tol:33,row:280,back:380,turn:3.8,maxTurn:1.7,kLong:1.1,kLat:2.7,mass:1.6,roll:0,r:26,len:84,wid:34,crew:2,arc:{lat:150,fwd:150,back:170,cruise:30,resp:3.4,assist:9,damp:4.5},
     pd:{name:'ROW!',cd:.5,J:55,Jb:70,yaw:.95,same:1,bothJ:180,bothB:200,bothCd:.75,btn:['L OAR','R OAR','BOTH','BACK'],help:'LEFT or RIGHT oar to pivot. BOTH for power. Hold BACK + BOTH to pull away from danger. Keep a steady rhythm.',keys:'A / D one oar · W both oars · hold S to back-row · mouse: click to row'}},
   tube:{name:'Inner Tube',tag:'CHAOS',desc:'No oars. You kick. It spins. Keep your feet downstream. Good luck.',
-    hp:100,rockDmg:.3,tol:26,row:120,back:120,turn:5,maxTurn:2.6,kLong:2,kLat:2.1,mass:.5,roll:0,r:20,len:46,wid:46,crew:1,
+    hp:100,rockDmg:.3,tol:26,row:120,back:120,turn:5,maxTurn:2.6,kLong:2,kLat:2.1,mass:.5,roll:0,r:20,len:46,wid:46,crew:1,arc:{lat:90,fwd:60,back:60,cruise:0,resp:2.4,assist:2.5,damp:2.2},
     pd:{name:'KICK!',cd:.22,J:45,Jb:35,yaw:.6,same:.8,bothJ:0,btn:['KICK L','KICK R','KICK','BACK'],help:'Tap LEFT / RIGHT to kick. Keep your feet downstream.',keys:'A / D kick · W next kick · hold S to kick backward'}}
 };
 
