@@ -6,7 +6,9 @@
 <meta name="theme-color" content="#0b1f26">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>River Run</title>
+<title>River Rat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233f7f6f'/%3E%3Cpath d='M8 40 Q20 30 32 40 T56 40' stroke='white' stroke-width='5' fill='none'/%3E%3Crect x='24' y='14' width='16' height='26' rx='8' fill='%23f0b429'/%3E%3C/svg%3E">
 <style>
 :root{--bg:#0b1f26;--panel:#12303a;--ink:#eaf4f2;--mute:#9fbcbc;--acc:#ffb347;--ok:#5fd38d;--bad:#ff6b5b;--line:#24505c}
@@ -158,6 +160,38 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 .budget.bad b{color:var(--bad)}
 .crewin input{width:100%;margin-top:4px;background:#0b1f26;border:1px solid var(--line);color:#fff;border-radius:8px;padding:8px}
 .crewin small{color:var(--mute)}
+
+/* ---- retro pixel art, world map, vitals ---- */
+canvas.wmap,#titleCv,.endart{display:block;width:100%;image-rendering:pixelated;border:3px solid #000;box-shadow:0 0 0 3px #f2d494,0 8px 24px rgba(0,0,0,.4);border-radius:4px;background:#14305e;touch-action:none;cursor:pointer}
+#titleCv{height:clamp(150px,30vw,230px);margin:4px 0 10px}
+.endart{height:clamp(150px,34vw,240px);margin:0 auto 6px;max-width:640px}
+.retrocap{max-width:640px;margin:0 auto 10px;background:#fff;color:#000;border:3px solid #000;font-family:"VT323",monospace;font-size:24px;text-align:center;padding:4px 8px}
+.mapbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 4px;font-family:"VT323",monospace;font-size:20px;color:#f2d494}
+.mapbar .ghost{margin:0}
+#contChips{margin:8px 0 4px}
+#vitals{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom));display:none;gap:6px;z-index:11;pointer-events:none;background:rgba(0,0,0,.55);border:2px solid #000;box-shadow:0 0 0 2px #f2d494;padding:4px 8px;border-radius:4px}
+#vitals .v{display:flex;flex-direction:column;align-items:center;font-size:16px;line-height:1}
+#vitals .v i{display:block;width:34px;height:6px;background:#222;margin-top:3px;border:1px solid #000}
+#vitals .v b{display:block;height:100%}
+@media (max-width:600px){#vitals{bottom:auto;top:calc(158px + env(safe-area-inset-top));left:10px;transform:none}}
+.vitals{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0}
+.vitals .vt{background:rgba(0,0,0,.3);padding:6px 8px;border-radius:6px}.vitals .vt span{font-weight:700}.vitals .vt small{color:var(--mute)}
+.oregon{background:#fff;color:#000;border:3px solid #000;font-family:"VT323",monospace;font-size:22px;padding:6px 12px;margin:6px 0 12px;max-width:520px}
+.oregon div{display:flex;gap:10px}.oregon span{min-width:150px;text-align:right}
+#sceneScreen.retro #scenePanel{background:#fff;color:#000;border:4px solid #000;border-radius:0;box-shadow:0 0 0 4px #fff;font-family:"VT323",monospace;bottom:12px}
+#sceneScreen.retro #scenePanel h1{font-family:"Press Start 2P",monospace;font-size:clamp(16px,4.4vw,26px);color:#000;line-height:1.4;text-align:center}
+#sceneScreen.retro #scenePanel p,#sceneScreen.retro #scenePanel .sub,#sceneScreen.retro #scenePanel .pk{color:#000;font-size:21px;text-align:center}
+#sceneScreen.retro #scenePanel .mute{color:#444}
+#sceneScreen.retro #scenePanel button{font-family:"VT323",monospace;font-size:22px;border-radius:0;border:3px solid #000}
+#sceneScreen.retro #scenePanel .cbtns::after{content:"Press SPACE BAR or tap to continue";display:block;text-align:center;font-family:"VT323",monospace;font-size:20px;color:#000;margin-top:4px}
+#campScreen.retro #campPanel .oregon{margin-left:auto;margin-right:auto}
+#campScreen.retro #campPanel{background:#fff;color:#000;border:4px solid #000;border-radius:0;font-family:"VT323",monospace;font-size:20px}
+#campScreen.retro #campPanel h1{font-family:"Press Start 2P",monospace;font-size:clamp(14px,3.6vw,20px);color:#000;line-height:1.4}
+#campScreen.retro #campPanel p,#campScreen.retro #campPanel .sub,#campScreen.retro #campPanel .pk,#campScreen.retro #campPanel small,#campScreen.retro #campPanel .mute{color:#000}
+#campScreen.retro #campPanel .bad{color:#b8322a}
+#campScreen.retro #campPanel button{font-family:"VT323",monospace;font-size:22px;border-radius:0;border:3px solid #000}
+#campScreen.retro #campPanel .vitals .vt,#campScreen.retro #campPanel .cm{background:#eee;color:#000}
+#sceneCv,#campCv{image-rendering:pixelated}
 </style>
 </head>
 <body>
@@ -168,6 +202,7 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 <div id="stroke"><span id="strokeTxt">STROKE</span><div class="sb"><div class="sf" id="strokeFill"></div></div></div>
 <div id="tag3d">3D</div>
 
+<div id="vitals"></div>
 <div id="hud">
   <canvas id="progCv"></canvas>
   <div class="hl"><div id="hRiver"></div><div id="hMile" class="bigt"></div><div id="hTime" class="mute"></div></div>
@@ -189,13 +224,15 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 </div>
 
 <div id="menu" class="screen"><div class="wrap">
-  <h1>River <span>Run</span></h1>
+  <h1 style="position:absolute;left:-9999px">River Rat</h1>
+  <canvas id="titleCv" aria-label="River Rat title picture"></canvas>
   <div class="sub">Read the water. Square up to the waves. Do not swim.</div>
   <div class="topbar">
     <input id="pname" maxlength="18" placeholder="Your name" aria-label="Your name for leaderboards">
     <button class="ghost" id="lbBtn">🏆 Leaderboards</button>
     <button class="ghost" id="factsBtn">📜 History & facts: ON</button>
     <button class="ghost" id="tipsBtn">💡 Tips: ON</button>
+    <button class="ghost" id="retroBtn">🕹 Retro art: ON</button>
     <button class="ghost" id="badgesBtn">🏅 Badges</button>
     <button class="ghost" id="shopBtn">🛠 Boat shop</button>
     <button class="run" id="contBtn" style="display:none;width:auto;margin:0;padding:10px 16px"></button>
@@ -207,7 +244,9 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
   <div class="lb" id="missionBox" style="margin-top:12px"></div>
   <h2>3 · Pick your craft</h2>
   <div id="crafts" class="grid craftgrid"></div>
-  <h2>4 · Pick your river <span class="mute" style="text-transform:none;letter-spacing:0">(top runs shown — tap ▶ to play)</span></h2>
+  <h2>4 · Pick your river <span class="mute" style="text-transform:none;letter-spacing:0">(tap a flag on the map, or a card below)</span></h2>
+  <div id="worldMap"></div>
+  <div id="contChips" class="row"></div>
   <div id="rivers" class="grid"></div>
   <div class="season" id="seasonNote"></div>
   <h2>5 · Water level</h2>
@@ -256,9 +295,13 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="rivers.js"></script>
+<script src="world-rivers.js"></script>
 <script src="game.js"></script>
 <script src="trip.js"></script>
 <script src="scenes.js"></script>
+<script src="pixel.js"></script>
+<script src="wild.js"></script>
+<script src="map.js"></script>
 <script src="three-d.js"></script>
 <script src="scenery.js"></script>
 <script>boot();</script>

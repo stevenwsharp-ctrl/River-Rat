@@ -7,22 +7,23 @@
    Replace or edit this list. Each item: id, name, price (dollars), desc,
    optional unit and "rec" (recommended amount for crew size n and days d). */
 const SUPPLIES=[
-  {id:'food',name:'Food',unit:'person-days',price:12,desc:'One day of meals for one person.',rec:(n,d)=>n*d+n},
-  {id:'water',name:'Drinking water',unit:'5-gal jugs',price:6,desc:'About one jug for three people per day. A filter can replace it.',rec:(n,d)=>Math.ceil(n/3)*d},
-  {id:'filter',name:'Water filter',price:60,desc:'Makes river water safe. Stops most sickness.',rec:()=>1},
-  {id:'firstaid',name:'First aid kit',price:45,desc:'Heals an injured or sick crew member (+30 health).',rec:()=>2},
-  {id:'repair',name:'Boat repair kit',price:70,desc:'Fixes hull damage (+45%). Can save the trip.',rec:()=>1},
-  {id:'spareoar',name:'Spare oar',price:90,desc:'Replaces a lost oar.',rec:()=>1},
+  {id:'food',name:'🍲 Food',vital:'food',unit:'person-days',price:12,desc:'One day of meals for one person.',rec:(n,d)=>n*d+n},
+  {id:'water',name:'💧 Drinking water',vital:'water',unit:'5-gal jugs',price:6,desc:'About one jug for three people per day. A filter can replace it.',rec:(n,d)=>Math.ceil(n/3)*d},
+  {id:'filter',name:'💧 Water filter',vital:'water',price:60,desc:'Makes river water safe. Stops most sickness.',rec:()=>1},
+  {id:'firstaid',name:'🩹 First aid kit',vital:'firstaid',price:45,desc:'Heals an injured or sick crew member (+30 health).',rec:()=>2},
+  {id:'repair',name:'🛟 Raft repair kit',vital:'raft',price:70,desc:'Fixes hull damage (+45%). Can save the trip.',rec:()=>1},
+  {id:'spareoar',name:'🛶 Spare paddles & oars',vital:'paddles',price:90,desc:'Replaces a lost paddle or oar.',rec:()=>1},
   {id:'rope',name:'Rope & straps',price:30,desc:'Tie gear down. Fewer items lost in flips.',rec:()=>1},
   {id:'warm',name:'Warm layers / wetsuit',unit:'per person',price:40,desc:'Stops hypothermia after swims in cold water.',rec:n=>n},
   {id:'sunscreen',name:'Sunscreen & hats',price:15,desc:'Stops sunburn.',rec:()=>1},
-  {id:'groover',name:'Groover (river toilet)',price:50,desc:'Required on most river permits. Rangers check.',rec:()=>1},
+  {id:'groover',name:'🚽 Groover (river toilet)',vital:'groover',unit:'cans',price:50,desc:'Required on most river permits. Rangers check. One can holds about 8 person-days.',rec:(n,d)=>Math.max(1,Math.ceil(n*d/8))},
   {id:'fuel',name:'Stove fuel',unit:'days',price:10,desc:'Hot meals keep morale up.',rec:(n,d)=>d}
 ];
 const CREW_NAMES=['Maya','Jules','Ravi','Tess','Owen','Lena','Diego','Nora','Cal','Ivy'];
 const ROLES=['Trip Leader','Boatman','Cook','Swamper','Photographer','Geologist','Naturalist','Medic'];
 const OVERNIGHT_GEAR=['the cooler','a dry bag of sleeping bags','the camp chairs','the kitchen box','your sunglasses','the tent bag','the water jug','the guidebook'];
 const COLD_RIVERS=['gc-upper','gc-lower','gc-bottom','gc-full'];
+const isCold=R=>(R.waterF||60)<56||COLD_RIVERS.includes(R.id);
 const FLEET_NAMES=['Gear boat','Paddle raft','Cook boat'],FLEET_COLS=['#e67e22','#2e86c1','#8e44ad'];
 
 const TRIP={
@@ -48,7 +49,7 @@ const TRIP={
     if(mode==='expedition'){
       const cfg=this.pending||this.defaultCfg(R);this.pending=null;
       tr.crew=cfg.crew.map((n,i)=>({name:n,role:ROLES[i]||'Crew',hp:100,st:[],gone:false}));
-      tr.sup=Object.assign({},cfg.sup);
+      tr.sup=Object.assign({},cfg.sup);tr.sup0=Object.assign({},cfg.sup);tr.gUsed=0;
       tr.repairsUsed=0;
       const nb=Math.max(1,cfg.boats||1),per=Math.ceil(tr.crew.length/nb);
       tr.fleet=[];for(let i=1;i<nb;i++)tr.fleet.push({name:FLEET_NAMES[i-1],craft:i%2?'raft':'dory',col:FLEET_COLS[i-1],crew:tr.crew.slice(i*per,(i+1)*per).map(c=>c.name),ran:{},flip:0,h:0});
@@ -136,7 +137,7 @@ const TRIP={
     let ev=null;
     if(tr.mode==='overnight'){
       if(tr.lostToday.length)lines.push(`Lost today: ${tr.lostToday.join(', ')}. ${tr.lostToday.includes('the cooler')?'Dinner is crackers.':'You make do.'}`);
-      ev=this.pickEvent(['stars','bighorn','ringtail','wind','rain','music']);
+      ev=this.pickEvent(R.events||['stars','bighorn','ringtail','wind','rain','music']);
     }else{
       const a=this.alive(),s=tr.sup,n=a.length;
       if(s.food>=n){s.food-=n;tr.morale+=2;if(s.fuel>0){s.fuel--;tr.morale+=3;lines.push('Hot dinner on the stove. Everyone is happy.');}else lines.push('Cold dinner: no stove fuel left.');a.forEach(c=>c.hp=Math.min(100,c.hp+6));}
@@ -144,11 +145,12 @@ const TRIP={
       const wneed=Math.ceil(n/3);if(s.water>=wneed)s.water-=wneed;else if(s.filter>0)lines.push('You filter river water to drink.');else{s.water=0;a.forEach(c=>c.hp-=8);lines.push('<b class="bad">No clean water.</b> Everyone is thirsty (−8).');}
       if(s.filter<=0&&Math.random()<.3){const v=a[Math.floor(Math.random()*n)];v.hp-=15;v.st.push('sick');lines.push(`<b class="bad">${v.name} is sick</b> from bad water (−15).`);}
       if(s.sunscreen<=0&&Math.random()<.35){const v=a[Math.floor(Math.random()*n)];v.hp-=8;v.st.push('sunburn');lines.push(`${v.name} has a bad sunburn (−8).`);}
-      const cold=COLD_RIVERS.includes(R.id)?1:.4;
+      const cold=isCold(R)?1:.4;
       for(const nm of tr.swamDay){const c=tr.crew.find(x=>x.name===nm&&!x.gone);if(!c)continue;if(s.warm<n&&Math.random()<.6*cold){c.hp-=10;c.st.push('cold');lines.push(`${c.name} swam today and cannot get warm. Hypothermia risk (−10).`);}}
+      if(s.groover>0){tr.gUsed=(tr.gUsed||0)+n;if(tr.gUsed>s.groover*8&&!tr.gFull){tr.gFull=1;tr.morale-=8;lines.push('<b class="bad">🚽 The groover is full!</b> You pack out the rest in bags. Nobody is happy (morale −8).');}}
       if(s.groover<=0&&tr.day===2){G.score=Math.max(0,G.score-200);tr.morale-=5;lines.push('<b class="bad">Ranger patrol!</b> You have no groover. That is a fine (−200 points).');}
       if(tr.lostToday.length)lines.push(`Lost on the river today: ${tr.lostToday.join(', ')}.`);
-      ev=this.pickEvent(['ringtail','scorpion','stars','wind','rain','beaver','rockart','bighorn','argue','cold','music']);
+      ev=this.pickEvent(R.events||['ringtail','scorpion','stars','wind','rain','beaver','rockart','bighorn','argue','cold','music']);
     }
     if(ev)lines.push(ev);
     this.checkEvac(lines);
@@ -169,12 +171,27 @@ const TRIP={
       if(G.hp<G.hpMax*.8&&s.repair>0)btns.push(['Repair the boat (+45%)',()=>{s.repair--;G.hp=Math.min(G.hpMax,G.hp+G.hpMax*.45);G.oarLost=false;this.campView(cp,['You patch the hull and fix the oar frame.'],null);}]);
       else if(G.oarLost&&s.repair>0)btns.push(['Splint the broken oar',()=>{s.repair--;G.oarLost=false;this.campView(cp,['You splint the oar with straps and duct tape. Good as new (almost).'],null);}]);
     }
-    const body=lines.map(l=>`<p>${l}</p>`).join('')+(fact?`<div class="campfact">${fact}</div>`:'')+this.statusHtml();
+    const body=(tr.mode==='expedition'?this.oregonHtml(cp):'')+lines.map(l=>`<p>${l}</p>`).join('')+(fact?`<div class="campfact">${fact}</div>`:'')+this.statusHtml();
     this.openCampUI({title:cp.n,sub:`Night ${tr.day} of ${tr.days-1} · Mile ${cp.m.toFixed(1)} · ${G.river.name}`,body,scene:{cp},buttons:btns});
   },
+  /* the six expedition vitals: Groover, First Aid, Paddles, Raft, Food, Water */
+  vitals(){const tr=this.t();if(!tr||!tr.sup)return null;const s=tr.sup,s0=tr.sup0||s,n=Math.max(1,this.alive().length),left=Math.max(1,tr.days-tr.day+1);
+    const v=(id,icon,name,val,txt)=>({id,icon,name,v:clamp(val,0,1),txt});
+    return [v('groover','🚽','Groover',s.groover>0?1-(tr.gUsed||0)/(s.groover*8):0,s.groover>0?`${Math.max(0,Math.round(100-(tr.gUsed||0)/(s.groover*8)*100))}%`:'none!'),
+      v('firstaid','🩹','First Aid',s.firstaid/Math.max(1,s0.firstaid||1),`${s.firstaid} kits`),
+      v('paddles','🛶','Paddles',(s.spareoar+(G.oarLost?0:1))/((s0.spareoar||0)+1),G.oarLost?'1 lost!':`${s.spareoar} spare`),
+      v('raft','🛟','Raft',G.hp/G.hpMax,`${Math.round(G.hp/G.hpMax*100)}%${s.repair?` +${s.repair} kit`:''}`),
+      v('food','🍲','Food',s.food/(n*left),`${s.food} p-days`),
+      v('water','💧','Water',s.filter>0?Math.max(.75,s.water/(Math.ceil(n/3)*left)):s.water/(Math.ceil(n/3)*left),s.filter>0?'filter ✓':`${s.water} jugs`)];},
+  vitalsHtml(){const V=this.vitals();if(!V)return '';return `<div class="vitals">${V.map(x=>`<div class="vt"><span>${x.icon} ${x.name}</span><div class="hpb"><i style="width:${Math.round(x.v*100)}%;background:${x.v>.5?'#5fd38d':x.v>.25?'#ffb347':'#ff6b5b'}"></i></div><small>${x.txt}</small></div>`).join('')}</div>`;},
+  oregonHtml(cp){const tr=this.t(),R=G.river,a=this.alive(),avg=a.length?a.reduce((q,c)=>q+c.hp,0)/a.length:0,W=G.W,b=G.b;
+    const mi=cp&&cp.m!==undefined?cp.m:W.mileAt(b.y),nx=R.rapids.find(r=>r.m>mi)||null,d=new Date();d.setDate(d.getDate()+tr.day-1);
+    const wx=R.waterF<45?'freezing':R.cont==='Africa'||R.cont==='Asia'?'hot':R.id==='franklin'?'rainy':'mild';
+    const row=(k,v)=>`<div><span>${k}:</span><b>${v}</b></div>`;
+    return `<div class="oregon">${row('Date',d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}))}${row('Weather',wx)}${row('Water',`${R.waterF||60} °F`)}${row('Health',avg>75?'good':avg>50?'fair':avg>25?'poor':'very poor')}${row('Food',`${tr.sup?tr.sup.food:'—'} person-days`)}${row('Next rapid',nx?`${nx.n} (${Math.max(0,nx.m-mi).toFixed(1)} mi)`:'none')}${row('Miles run',`${(mi-R.start).toFixed(1)} of ${(R.end-R.start).toFixed(0)}`)}</div>`;},
   statusHtml(){const tr=this.t();if(tr.mode!=='expedition')return G.lost.length?`<p class="mute">Gear lost so far: ${G.lost.join(', ')}</p>`:'';
     const s=tr.sup;return `<div class="crewgrid">${tr.crew.map(c=>`<div class="cm ${c.gone?'gone':''}"><b>${esc(c.name)}</b><small>${c.role}</small><div class="hpb"><i style="width:${c.gone?0:c.hp}%;background:${c.hp>60?'#5fd38d':c.hp>30?'#ffb347':'#ff6b5b'}"></i></div><small>${c.gone?(COLD_RIVERS.includes(G.river.id)?'evacuated by helicopter':'hiked out'):c.st.slice(-2).join(', ')||'ok'}</small></div>`).join('')}</div>
-      <p class="mute">Morale ${tr.morale}/100 · Food ${s.food} · Water ${s.water} · Fuel ${s.fuel} · First aid ${s.firstaid} · Repair ${s.repair} · Spare oars ${s.spareoar} · Boat ${Math.round(G.hp/G.hpMax*100)}%</p>`;},
+      <p class="mute">Morale ${tr.morale}/100 · Food ${s.food} · Water ${s.water} · Fuel ${s.fuel} · First aid ${s.firstaid} · Repair ${s.repair} · Spare oars ${s.spareoar} · Boat ${Math.round(G.hp/G.hpMax*100)}%</p>`+this.vitalsHtml();},
   checkEvac(lines){const tr=this.t();if(!tr.crew)return;for(const c of tr.crew){if(!c.gone&&c.hp<=0){c.gone=true;c.hp=0;tr.evac.push(c.name);lines.push(`<b class="bad">${c.name} must leave the trip</b> — ${COLD_RIVERS.includes(G.river.id)?'evacuated by helicopter':'hiked out to a road'}.`);}}},
   dawn(cp){
     const tr=this.t();$('campScreen').style.display='none';
@@ -202,6 +219,22 @@ const TRIP={
       case 'scorpion':{if(!exp)return null;const v=rnd();v.hp-=12;v.st.push('stung');return `🦂 A scorpion stings ${v.name} (−12). Shake out your shoes!`;}
       case 'beaver':if(!exp)return null;if(s.spareoar>0&&Math.random()<.5){s.spareoar--;return '🦫 A beaver chews the spare oar to a stick in the night.';}return '🦫 A beaver slaps its tail in the eddy all night.';
       case 'argue':{if(!exp)return null;tr.morale-=6;const v=rnd();v.st.push('upset');return `😠 Two people argue about the dishes. ${v.name} is upset.`;}
+      case 'hippo_far':tr.morale+=4;return '🦛 Hippos grunt and honk somewhere downstream all night.';
+      case 'hippo_camp':if(exp&&Math.random()<.4){const v=rnd();v.hp-=6;v.st.push('scared');tr.morale-=4;return `🦛 A hippo walks through camp in the dark to graze. ${v.name} trips over a tent rope running for the boats (−6).`;}tr.morale+=3;return '🦛 Hippos come out of the river at night to eat grass. You hear them chewing right next to the tents!';
+      case 'lion_far':tr.morale+=3;return '🦁 Far away, a lion roars. The sound rolls down the gorge.';
+      case 'lion':tr.morale+=5;return '🦁 Lions roar across the river at 3 a.m. Nobody goes to the groover alone.';
+      case 'elephant_camp':tr.morale+=8;return '🐘 Elephants walk slowly past the camp at dusk to drink. Everyone holds their breath.';
+      case 'hyena':if(exp&&s.food>0){const l=Math.min(s.food,2);s.food-=l;return `🐾 A hyena steals a food bag in the night (−${l} days of food). Hang the food next time!`;}return '🐾 Hyenas whoop in the dark.';
+      case 'baboons':if(exp&&s.food>0&&Math.random()<.5){s.food-=1;return '🐒 Baboons raid the kitchen at lunch and run off with the bread (−1 day of food).';}return '🐒 Baboons bark from the cliffs.';
+      case 'monkeys_food':if(exp&&s.food>0&&Math.random()<.5){s.food-=1;return '🐒 Monkeys steal the bananas and a bag of rice (−1 day of food).';}tr.morale+=3;return '🐒 Monkeys watch the camp from the trees and chatter.';
+      case 'condor':tr.morale+=6;return '🦅 Andean condors circle over camp. Their wings are 10 feet across.';
+      case 'asado':tr.morale+=8;return '🔥 A local family invites you to an asado, a Chilean barbecue by the river.';
+      case 'howler':tr.morale-=2;return '🐒 Howler monkeys roar at dawn. It sounds like a monster. It is only a monkey.';
+      case 'frogs':tr.morale+=5;return '🐸 Tiny red frogs and fireflies everywhere. The jungle never sleeps.';
+      case 'leech':{if(!exp)return '🪱 A leech on your ankle! Salt makes it let go.';const v=rnd();v.hp-=4;v.st.push('leech');return `🪱 ${v.name} finds three leeches after a walk in the forest (−4).`;}
+      case 'chiya':tr.morale+=7;return '🫖 Kids from a village bring hot chiya (sweet milk tea) to camp. Everyone learns a few words of Nepali.';
+      case 'aarti':tr.morale+=8;return '🪔 At dusk, small leaf boats with candles float past from an aarti (a prayer ceremony) upstream.';
+      case 'platypus':tr.morale+=7;return '🦆 A platypus swims in the eddy at dawn. Very few people ever see one in the wild!';
       case 'cold':if(!exp)return null;if(s.warm<a.length){a.forEach(c=>{c.hp-=5;});return '🥶 A freezing night with frost on the boats. Not enough warm layers (−5 each).';}return '🥶 A freezing night. Good thing you packed warm layers.';
     }
     return null;
@@ -237,7 +270,7 @@ const TRIP={
   openCampUI({title,sub,body,buttons,scene}){
     const w=$('campPanel');w.innerHTML=`<div class="pk">⛺ Camp</div><h1>${esc(title)}</h1><div class="sub">${esc(sub)}</div>${body}<div class="cbtns"></div>`;
     const bw=w.querySelector('.cbtns');buttons.forEach(([t,fn],i)=>{const b=document.createElement('button');b.className=i===0?'big':'ghost';b.textContent=t;b.onclick=fn;bw.appendChild(b);});
-    $('campScreen').style.display='block';this.scene=this.makeScene(scene||{});
+    $('campScreen').style.display='block';$('campScreen').classList.toggle('retro',typeof PIX!=='undefined'&&PIX.on());this.scene=this.makeScene(scene||{});
   },
   makeScene(o){const rng=mulberry32(hashStr((o.cp&&o.cp.n)||'camp')),stars=[],mw=[],wallL=[],wallR=[];
     for(let i=0;i<260;i++)stars.push([rng(),rng()*.62,rng()*1.6+.3,rng()*6]);
@@ -272,6 +305,7 @@ const TRIP={
     if(Math.random()<dt*.6)sc.bats.push({x:-20,y:h*(.2+Math.random()*.3),p:Math.random()*6});
     for(let i=sc.bats.length-1;i>=0;i--){const bt=sc.bats[i];bt.x+=160*dt;bt.y+=Math.sin(t*8+bt.p)*2;if(bt.x>w+30){sc.bats.splice(i,1);continue;}c.strokeStyle='#0a0a12';c.lineWidth=2;const f=Math.sin(t*25+bt.p)*5;c.beginPath();c.moveTo(bt.x-7,bt.y-f);c.lineTo(bt.x,bt.y);c.lineTo(bt.x+7,bt.y-f);c.stroke();}
     if(sc.rain){c.strokeStyle='rgba(180,200,230,.35)';c.lineWidth=1;c.beginPath();for(let i=0;i<120;i++){const x=(i*97+t*300)%w,y=(i*53+t*700)%h;c.moveTo(x,y);c.lineTo(x-3,y+12);}c.stroke();if(Math.random()<dt*.2){c.fillStyle='rgba(255,255,255,.25)';c.fillRect(0,0,w,h);}}
+    if(typeof PIX!=='undefined'&&PIX.on())PIX.retroize(cvs);
   },
   lunch(){const tr=this.t();
     if(tr&&tr.mode==='expedition'){const a=this.alive(),need=Math.ceil(a.length/2);if(tr.sup.food>=need){tr.sup.food-=need;a.forEach(c=>c.hp=Math.min(100,c.hp+8));tr.morale=Math.min(100,tr.morale+6);return `Lunch in the shade: sandwiches, chips and fruit. Crew +8 health, morale up. (−${need} food)`;}tr.morale-=3;return 'Not enough food for a real lunch. You share some crackers.';}
@@ -287,7 +321,7 @@ const TRIP={
         const s=tr.sup,keys=['food','water','fuel','firstaid'].filter(k=>s[k]>0);if(keys.length){const k=keys[Math.floor(Math.random()*keys.length)],amt=k==='food'?Math.min(s[k],3):1;s[k]-=amt;tr.lostToday.push(`${amt} ${k} from the ${f.name.toLowerCase()}`);}}}});},
   /* ---------- save + continue (expedition) ---------- */
   save(cp){const tr=this.t();if(!tr||tr.mode!=='expedition')return;const W=G.W;
-    store.set('riverrun_save',{v:1,river:G.river.id,craft:G.ck,level:G.lvlKey,day:tr.day,days:tr.days,crew:tr.crew,sup:tr.sup,morale:tr.morale,quarrels:tr.quarrels,evac:tr.evac,
+    store.set('riverrun_save',{v:1,river:G.river.id,craft:G.ck,level:G.lvlKey,day:tr.day,days:tr.days,crew:tr.crew,sup:tr.sup,sup0:tr.sup0,gUsed:tr.gUsed||0,gFull:tr.gFull||0,morale:tr.morale,quarrels:tr.quarrels,evac:tr.evac,
       boats:(tr.fleet||[]).length+1,opts:tr.opts.map(o=>o.map(c=>({n:c.n,m:c.m,side:c.side,taken:!!c.taken,rejected:!!c.rejected,shared:!!c.shared,gen:!!c.gen}))),
       g:{score:G.score,swims:G.swims,hp:G.hp,t:G.t,clean:G.clean,stars:G.stars,streak:G.streak,bestStreak:G.bestStreak||0,mob:G.mobCount,res:G.rescues,lost:G.lost,oarLost:G.oarLost,repairsUsed:tr.repairsUsed},
       mile:cp.m,rapids:W.rapids.map(r=>[r.done?1:0,r.clean?1:0,r.stars||0]),stops:W.stops.filter(s=>s.done).map(s=>s.id),date:new Date().toISOString().slice(0,10)});},
@@ -295,7 +329,7 @@ const TRIP={
   clearSave(){const tr=this.t();if(tr&&tr.mode==='expedition')store.set('riverrun_save',null);},
   continueSave(){const sv=this.loadSave();if(!sv)return;Object.assign(sel,{river:sv.river,craft:sv.craft,level:sv.level,mode:'expedition'});this.pending={crew:sv.crew.map(c=>c.name),sup:sv.sup,boats:sv.boats};this.pendingRestore=sv;startGame(sv.level);},
   restore(sv){const tr=this.t(),W=G.W;
-    tr.day=sv.day;tr.days=sv.days;tr.crew=sv.crew;tr.sup=sv.sup;tr.morale=sv.morale;tr.quarrels=sv.quarrels;tr.evac=sv.evac||[];tr.repairsUsed=sv.g.repairsUsed||0;
+    tr.day=sv.day;tr.days=sv.days;tr.crew=sv.crew;tr.sup=sv.sup;tr.sup0=sv.sup0||Object.assign({},sv.sup);tr.gUsed=sv.gUsed||0;tr.gFull=sv.gFull||0;tr.morale=sv.morale;tr.quarrels=sv.quarrels;tr.evac=sv.evac||[];tr.repairsUsed=sv.g.repairsUsed||0;
     tr.opts=sv.opts.map(o=>o.map(c=>{let w=W.camps.find(x=>x.n===c.n&&Math.abs(x.m-c.m)<.2);if(!w){w={n:c.n,m:c.m,side:c.side,y:W.yAtMile(c.m),gen:true};W.camps.push(w);}return Object.assign(w,{taken:c.taken,rejected:c.rejected,shared:c.shared});}));
     const g=sv.g;Object.assign(G,{score:g.score,swims:g.swims,hp:g.hp,t:g.t,clean:g.clean,stars:g.stars,streak:g.streak,bestStreak:g.bestStreak,mobCount:g.mob,rescues:g.res,lost:g.lost||[],oarLost:!!g.oarLost});
     W.rapids.forEach((r,i)=>{const q=sv.rapids[i];if(q){r.done=!!q[0];r.clean=!!q[1];r.stars=q[2];r.announced=r.done;r.entered=r.done;}});

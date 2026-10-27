@@ -243,7 +243,7 @@ function build3DExtras(ch,grp,TX,TZ,profH,y0,y1,pal){
     else if(['ruin','granary','stonehouse','cabin','lodge','ranch'].includes(T)){const hi=T==='granary'?profH(180):h;const n=T==='granary'?4:3;for(let k=0;k<n;k++){const bx2=x+s*(T==='granary'?160:50+k*8),bz=st.y-40+k*36;const box=new THREE.Mesh(new THREE.BoxGeometry(26,20+k*4,24),M3(T==='cabin'?0x7a5232:T==='lodge'?0x9a8a78:0xb59a76,{flatShading:true,roughness:1}));box.position.set(TX(bx2),hi+11,TZ(bz));grp.add(box);
       const door=new THREE.Mesh(new THREE.BoxGeometry(2,8,7),M3(0x140c08));door.position.set(TX(bx2-s*13.5),hi+10,TZ(bz));grp.add(door);if(T==='cabin'||T==='lodge'){const roof=new THREE.Mesh(new THREE.ConeGeometry(22,12,4),M3(0x4a3020));roof.rotation.y=Math.PI/4;roof.position.set(TX(bx2),hi+28,TZ(bz));grp.add(roof);}}}}
 }
-function fauna3D(k){const g=new THREE.Group(),dark=M3(0x15151a);
+function fauna3D(k){if(typeof WILD!=='undefined'&&WILD.kinds[k])return WILD.mesh3D(k);const g=new THREE.Group(),dark=M3(0x15151a);
   if(k==='raven'||k==='condor'){const s=k==='condor'?2.2:1;const body=new THREE.Mesh(new THREE.ConeGeometry(2.5*s,12*s,6),dark);body.rotation.x=Math.PI/2;g.add(body);for(const sd of[-1,1]){const w=new THREE.Mesh(new THREE.BoxGeometry(16*s,.8,6*s),k==='condor'?M3(0x1b1b1b):dark);w.position.x=sd*8*s;g.add(w);if(k==='condor'){const p=new THREE.Mesh(new THREE.BoxGeometry(8*s,.9,2*s),M3(0xeeeeee));p.position.set(sd*8*s,-.2,1.5*s);g.add(p);}}g.userData.wings=[g.children[1],g.children[k==='condor'?3:2]];}
   else if(k==='heron'){const gm=M3(0x8a96a3);const b=new THREE.Mesh(new THREE.SphereGeometry(6,8,6),gm);b.scale.set(1,1,1.8);b.position.y=26;g.add(b);const n=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,14,5),gm);n.position.set(0,36,-6);n.rotation.x=.4;g.add(n);const bk=new THREE.Mesh(new THREE.ConeGeometry(1.2,8,5),M3(0xe0b030));bk.position.set(0,42,-14);bk.rotation.x=-Math.PI/2;g.add(bk);for(const sd of[-1,1]){const l=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,20,4),M3(0x333333));l.position.set(sd*2,10,0);g.add(l);}}
   else if(k==='bighorn'||k==='deer'){const bm=M3(k==='deer'?0x8a5a32:0x9a7a52);const b=new THREE.Mesh(new THREE.BoxGeometry(9,9,20),bm);b.position.y=14;g.add(b);const h=new THREE.Mesh(new THREE.BoxGeometry(6,6,8),bm);h.position.set(0,21,-12);g.add(h);for(const sx of[-3,3])for(const sz of[-7,7]){const l=new THREE.Mesh(new THREE.CylinderGeometry(1,1,10,4),bm);l.position.set(sx,5,sz);g.add(l);}
@@ -252,6 +252,7 @@ function fauna3D(k){const g=new THREE.Group(),dark=M3(0x15151a);
   else{const m=new THREE.Mesh(new THREE.SphereGeometry(k==='beaver'?7:4,8,6),M3(k==='beaver'?0x5a3a22:0x6b5a4a));m.scale.set(1,.6,1.7);g.add(m);if(k==='ducks'){const hd=new THREE.Mesh(new THREE.SphereGeometry(2.4,6,5),M3(0xb5442a));hd.position.set(0,3,-5);g.add(hd);}}
   return g;}
 function updFauna3D(TX,TZ,t){const used={};for(const f of G.fauna){const k=f.k,n=f.n||1;for(let j=0;j<n;j++){if(f.dive&&f.dive>.3)continue;used[k]=(used[k]||0)+1;const pool=R3.fauna[k]=R3.fauna[k]||[];if(pool.length<used[k]){const m=fauna3D(k);R3.scene.add(m);pool.push(m);}const m=pool[used[k]-1];m.visible=true;
+    if(typeof WILD!=='undefined'&&WILD.kinds[k]){WILD.pose3D(m,f,TX,TZ,t);break;}
     let x=f.x,y=f.y+j*16,h=heightAt(x,y,t);
     if(k==='raven'||k==='condor'){h+=f.alt;m.rotation.set(0,Math.atan2(f.vx,-(f.vy||0)),0);const fl=Math.sin(t*(k==='condor'?2:9)+f.ph)*.5;if(m.userData.wings){m.userData.wings[0].rotation.z=fl;m.userData.wings[1].rotation.z=-fl;}}
     else if(k==='heron'){if(f.state==='fly'){h+=60;m.rotation.y=f.side>0?-Math.PI/2:Math.PI/2;}else{h=heightAt(x,y,t)-6;m.rotation.y=f.side>0?Math.PI/2:-Math.PI/2;}}
@@ -328,8 +329,9 @@ function render3D(dt){
   const hb=heightAt(b.x+sh*hl2,b.y+chh*hl2,t),hs=heightAt(b.x-sh*hl2,b.y-chh*hl2,t),hr=heightAt(b.x+chh*hw2,b.y-sh*hw2,t),hlf=heightAt(b.x-chh*hw2,b.y+sh*hw2,t);
   const bm=R3.boat,flipped=G.state==='flip';
   const pitch=clamp(Math.atan2(hb-hs,c.len*.9),-.5,.5),roll=clamp(Math.atan2(hr-hlf,c.wid),-.45,.45)+clamp(-b.av*.08,-.15,.15);
-  bm.position.set(TX(b.x),(hb+hs+hr+hlf)/4+(flipped?-4:1)+b.bounce*14,TZ(b.y));
-  bm.rotation.set(pitch,-b.h,flipped?Math.PI:roll,'YXZ');
+  const airK=G.airT>0?1-G.airT/1.1:1,airY=G.airT>0?(airK<.35?airK/.35*25:25-(airK-.35)/.65*115):0;
+  bm.position.set(TX(b.x),(hb+hs+hr+hlf)/4+(flipped?-4:1)+b.bounce*14+Math.max(-60,airY),TZ(b.y));
+  bm.rotation.set(G.airT>0?pitch-Math.sin(airK*Math.PI)*.7:pitch,-b.h,flipped?Math.PI:roll,'YXZ');
   P.people.forEach((p,i)=>p.visible=!(G.swim&&i===P.people.length-1));
   P.sw.visible=flipped;if(flipped){P.sw.rotation.set(0,0,-Math.PI);P.sw.children.forEach((s,i)=>{const a=t*1.3+i*2.1;s.position.set(Math.cos(a)*(c.len*.5+14),-6+Math.sin(t*3+i)*2,Math.sin(a*1.2)*(c.len*.45+12));s.visible=i<c.crew;});}
   const anim=a=>{const p=a.t;if(p>=1)return[0,0];const ph=a.back?1-p:p;return p<.55?[lerp(.65,-.65,ph/.55),-.14]:[lerp(-.65,.65,(p-.55)/.45),.18];};

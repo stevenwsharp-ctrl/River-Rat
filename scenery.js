@@ -15,20 +15,36 @@ const SCN_LAND={
   sj:[{k:'tamarisk',m0:0,m1:83.5,d:.9},{k:'cotton',m0:0,m1:12,d:.45},{k:'ledges',m0:27,m1:83.5},{k:'ledges',m0:0,m1:14}],
   cataract:[{k:'tamarisk',m0:0,m1:16.2,d:.7},{k:'boulders',m0:12.3,m1:16.2},{k:'boulders',m0:0,m1:12,d:.3}],
   gc:[{k:'tamarisk',m0:0,m1:226.5,d:.75},{k:'fans',m0:0,m1:226.5},{k:'schist',m0:77,m1:117.5,d:.5},{k:'schist',m0:127,m1:140,d:.5},{k:'schist',m0:213,m1:226.5,d:.5}],
-  gauley:[{k:'boulders',m0:0,m1:9.6,d:1.4}]
+  gauley:[{k:'boulders',m0:0,m1:9.6,d:1.4}],
+  zambezi:[{k:'schist',m0:0,m1:16.8,d:.45,pink:0},{k:'boulders',m0:0,m1:16.8,d:.8}],
+  manapools:[{k:'acacia',m0:0,m1:40,d:.7},{k:'reeds',m0:0,m1:40,d:.6}],
+  futa:[{k:'boulders',m0:0,m1:13.8,d:.7},{k:'cascade',m0:0,m1:13.8,d:.5}],
+  pacuare:[{k:'cascade',m0:0,m1:18,d:1.3},{k:'boulders',m0:0,m1:18,d:.6}],
+  soca:[{k:'boulders',m0:0,m1:6.5,d:.8}],
+  sunkosi:[{k:'terraces',m0:0,m1:150},{k:'boulders',m0:0,m1:162,d:.35}],
+  ganges:[{k:'boulders',m0:0,m1:15.4,d:.45}],
+  franklin:[{k:'cascade',m0:0,m1:74,d:.5},{k:'boulders',m0:0,m1:74,d:.7}],
+  kaituna:[{k:'cascade',m0:0,m1:1.6,d:2},{k:'boulders',m0:0,m1:1.6,d:1}],
+  onyx:[{k:'ice',m0:0,m1:20,d:1},{k:'boulders',m0:0,m1:20,d:.5}]
 };
+const SCN_BUNGEE={zambezi:[{m:0.45}]};
 /* Black Rocks: tall, old black rock bluffs on both sides. People jump into the deep water. */
-const SCN_JUMPS={ruby:[{m:16.35,side:-1,h:58,n:'Lookout Knob'},{m:16.6,side:1,h:40,n:'Black Rocks ledge'},{m:16.92,side:-1,h:76,n:'The Big One'},{m:17.15,side:1,h:30,n:'Kids\' rock'}]};
+const SCN_JUMPS={ganges:[{m:6.8,side:-1,h:52,n:'Cliff jump rock'}],ruby:[{m:16.35,side:-1,h:58,n:'Lookout Knob'},{m:16.6,side:1,h:40,n:'Black Rocks ledge'},{m:16.92,side:-1,h:76,n:'The Big One'},{m:17.15,side:1,h:30,n:'Kids\' rock'}]};
 const SCN={
   fall(){const mo=new Date().getMonth();return mo===9||mo===10;},
   build(W,R){
-    const rnd=mulberry32(hashStr(R.id+':scenery')),key=R.path||R.id,L=(SCN_LAND[key]||[]),S={knobs:[],trees:[],tam:[],bould:[],fans:[],hood:[],rail:[],ledges:[],jumps:[],swim:[],sun:[],cheered:{},train:null,trainT:18+rnd()*20};
+    const rnd=mulberry32(hashStr(R.id+':scenery')),key=R.path||R.id,L=(SCN_LAND[key]||[]),S={knobs:[],trees:[],tam:[],bould:[],fans:[],hood:[],rail:[],ledges:[],jumps:[],swim:[],sun:[],casc:[],terr:[],ice:[],reeds:[],bungee:[],falls:[],cheered:{},train:null,trainT:18+rnd()*20};
     const yr=(m0,m1)=>{const a=W.yAtMile(Math.max(m0,R.start)),b=W.yAtMile(Math.min(m1,R.end));if(m1<R.start||m0>R.end)return null;return [a===null?0:a,b===null?W.len:b];};
     for(const seg of L){const r=yr(seg.m0,seg.m1);if(!r||r[1]-r[0]<50)continue;const [y0,y1]=r,d=seg.d===undefined?1:seg.d;
-      if(seg.k==='schist'){for(const side of[-1,1]){for(let y=y0;y<y1;y+=(26+rnd()*30)/d)S.knobs.push({y,side,off:-8+rnd()*24,r:15+rnd()*22,h:16+rnd()*34,pink:rnd()<.18,id:(rnd()*1e6)|0});
-          for(let y=y0;y<y1;y+=(60+rnd()*60)/(d*d))S.knobs.push({y,side,off:45+rnd()*110,r:34+rnd()*46,h:50+rnd()*80,pink:rnd()<.12,id:(rnd()*1e6)|0});}}
+      if(seg.k==='schist'){for(const side of[-1,1]){for(let y=y0;y<y1;y+=(26+rnd()*30)/d)S.knobs.push({y,side,off:-8+rnd()*24,r:15+rnd()*22,h:16+rnd()*34,pink:seg.pink===0?false:rnd()<.18,id:(rnd()*1e6)|0});
+          for(let y=y0;y<y1;y+=(60+rnd()*60)/(d*d))S.knobs.push({y,side,off:45+rnd()*110,r:34+rnd()*46,h:50+rnd()*80,pink:seg.pink===0?false:rnd()<.12,id:(rnd()*1e6)|0});}}
       else if(seg.k==='cotton'){for(let y=y0;y<y1;y+=70)for(const side of[-1,1])if(rnd()<d*.4){const n=1+Math.floor(rnd()*3);for(let i=0;i<n;i++)S.trees.push({y:y+rnd()*60,side,off:28+rnd()*130,r:18+rnd()*20,g:rnd()});}
         for(const c of W.camps)if(c.y>y0&&c.y<y1&&rnd()<Math.min(1,d*2)){const n=3+Math.floor(rnd()*4);for(let i=0;i<n;i++)S.trees.push({y:c.y+(rnd()-.5)*240,side:c.side,off:60+rnd()*110,r:22+rnd()*20,g:rnd()});}}
+      else if(seg.k==='acacia'){for(let y=y0;y<y1;y+=90)for(const side of[-1,1])if(rnd()<d*.5)S.trees.push({y:y+rnd()*60,side,off:40+rnd()*160,r:22+rnd()*18,g:rnd(),ac:1});}
+      else if(seg.k==='cascade'){for(let y=y0;y<y1;y+=(260+rnd()*420)/d)S.casc.push({y,side:rnd()<.5?-1:1,h:60+rnd()*140,w:4+rnd()*8});}
+      else if(seg.k==='terraces')S.terr.push({y0,y1});
+      else if(seg.k==='reeds'){for(let y=y0;y<y1;y+=24)for(const side of[-1,1])if(rnd()<d*.5)S.reeds.push({y:y+rnd()*20,side,off:-4+rnd()*14,r:4+rnd()*5});}
+      else if(seg.k==='ice'){for(let y=y0;y<y1;y+=40)for(const side of[-1,1])if(rnd()<d*.45)S.ice.push({y:y+rnd()*30,side,off:4+rnd()*160,r:14+rnd()*40,id:(rnd()*1e6)|0});}
       else if(seg.k==='tamarisk'){for(let y=y0;y<y1;y+=20)for(const side of[-1,1])if(rnd()<d*.55)S.tam.push({y:y+rnd()*16,side,off:2+rnd()*30,r:5+rnd()*7,g:rnd()});}
       else if(seg.k==='rail')S.rail.push({y0,y1,side:seg.side||1,off:62});
       else if(seg.k==='hoodoo'){for(let y=y0;y<y1;y+=90+rnd()*160)S.hood.push({y,side:rnd()<.5?-1:1,off:140+rnd()*260,h:40+rnd()*90,r:7+rnd()*9});}
@@ -41,7 +57,9 @@ const SCN={
       S.jumps.push(sp);S.knobs.push({y,side:j.side,off:26,r:46,h:j.h,big:true,id:(rnd()*1e6)|0});
       for(let i=0;i<2;i++)S.sun.push({y:y+(rnd()-.5)*90,side:j.side,off:12+rnd()*14,col:cols[Math.floor(rnd()*6)],rot:rnd()*6});
       for(let i=0;i<2;i++)S.swim.push({y:y+60+rnd()*120,side:j.side,off:-40-rnd()*40,ph:rnd()*6,col:cols[Math.floor(rnd()*6)]});}
-    for(const k of['knobs','trees','tam','bould','fans','hood','jumps','swim','sun'])S[k].sort((a,b)=>a.y-b.y);
+    for(const j of (SCN_BUNGEE[key]||[])){const y=W.yAtMile(j.m);if(y!==null)S.bungee.push({y,t:Math.random()*4});}
+    for(const r of W.rapids)if(r.fall)S.falls.push({y:r.y0+r.L*.32,h:r.fall});
+    for(const k of['knobs','trees','tam','bould','fans','hood','jumps','swim','sun','casc','ice','reeds'])S[k].sort((a,b)=>a.y-b.y);
     W.scn=S;},
   bx(W,y,side,off){return W.cx(y)+side*(W.hw(y)+off);},
   /* ---------- update: jumpers and the train ---------- */
@@ -55,6 +73,7 @@ const SCN={
         else if(p.st==='swim'){const u=1-p.t/3.5;p.x=lerp(land,shore,clamp(u,0,1));p.y=sp.y+p.dy+lerp(18,30,clamp(u,0,1));p.z=-2;if(p.t<=0){p.st='climb';p.t=2.2;}}
         else if(p.st==='climb'){const u=1-p.t/2.2;p.x=lerp(shore,top,u);p.y=sp.y+p.dy+lerp(30,0,u);p.z=lerp(0,sp.h,u);if(p.t<=0){p.st='wait';p.t=1.5+Math.random()*4;}}}
       if(!S.cheered[sp.n]&&Math.abs(sp.y-b.y)<320&&G.state==='run'){S.cheered[sp.n]=1;G.score+=25;toast(`🤸 Cliff jumpers at ${sp.n}! +25`,'#9fe3ff',1.6);if(AU.cheer)AU.cheer(.35);}}
+    for(const q of S.bungee)q.t+=dt;
     // train on the railroad
     const rs=S.rail.find(r=>b.y>r.y0-800&&b.y<r.y1+400);
     if(S.train){const tr=S.train;tr.y+=tr.v*dt;if(!tr.horn&&Math.abs(tr.y-b.y)<900){tr.horn=1;SCN.horn();toast('🚆 The California Zephyr rolls by','#dfe6ee',1.6);}if(tr.y<tr.end)S.train=null;}
@@ -77,6 +96,18 @@ const SCN={
       c.fillStyle='rgba(0,0,0,.22)';c.beginPath();c.arc(x+3,m.y-3,m.r,0,7);c.fill();
       c.fillStyle=fall&&m.g<.5?mixHex('#8a7a3a','#b0702c',m.g*2):mixHex('#4e5f34','#6f7d42',m.g);c.beginPath();c.arc(x,m.y,m.r,0,7);c.fill();
       c.fillStyle='rgba(255,255,220,.12)';c.beginPath();c.arc(x-m.r*.3,m.y+m.r*.3,m.r*.5,0,7);c.fill();}
+    // terraces on the hills (Nepal)
+    for(const L of S.terr){const a=Math.max(L.y0,y0-60),z=Math.min(L.y1,y1+60);if(a>=z)continue;for(const side of[-1,1])for(let o=70;o<330;o+=26){c.strokeStyle=o%52?'rgba(200,190,90,.35)':'rgba(120,150,60,.4)';c.lineWidth=9;c.beginPath();for(let y=a;y<=z;y+=24)c.lineTo(B(y,side,o+14*Math.sin(y/240+o*.05)),y);c.stroke();}}
+    // reeds at the water edge
+    for(let i=lowerIdx(S.reeds,y0-40);i<S.reeds.length&&S.reeds[i].y<y1+40;i++){const q=S.reeds[i],x=B(q.y,q.side,q.off);c.strokeStyle='#8a9a4a';c.lineWidth=1.5;for(let k=0;k<4;k++){c.beginPath();c.moveTo(x,q.y);c.lineTo(x+(k-1.5)*3+Math.sin(t*2+q.y)*1.5,q.y+q.r*2);c.stroke();}}
+    // snow and ice patches (Antarctica)
+    for(let i=lowerIdx(S.ice,y0-80);i<S.ice.length&&S.ice[i].y<y1+80;i++){const q=S.ice[i],x=B(q.y,q.side,q.off);c.fillStyle='rgba(240,248,255,.92)';c.beginPath();for(let k=0;k<9;k++){const a=k/9*6.283,rr=q.r*(.7+hash2(q.id,k)*.5);c.lineTo(x+Math.cos(a)*rr,q.y+Math.sin(a)*rr*.7);}c.closePath();c.fill();c.fillStyle='rgba(170,200,230,.5)';c.beginPath();c.ellipse(x+q.r*.2,q.y-q.r*.2,q.r*.5,q.r*.25,0,0,7);c.fill();}
+    // waterfalls off the canyon walls
+    for(let i=lowerIdx(S.casc,y0-200);i<S.casc.length&&S.casc[i].y<y1+200;i++){const q=S.casc[i],x0=B(q.y,q.side,q.h*.9),x1=B(q.y,q.side,2);const g=c.createLinearGradient(x0,0,x1,0);g.addColorStop(0,'rgba(240,250,255,.2)');g.addColorStop(1,'rgba(240,250,255,.85)');
+      c.strokeStyle=g;c.lineWidth=q.w;c.beginPath();c.moveTo(x0,q.y);c.lineTo(x1,q.y);c.stroke();for(let k=0;k<5;k++){const ph=(t*.9+k*.2)%1;c.fillStyle=`rgba(255,255,255,${.5*(1-ph)})`;c.beginPath();c.arc(x1-q.side*ph*18,q.y+Math.sin(k*2)*10,4+ph*10,0,7);c.fill();}}
+    // waterfall lips you raft (Tutea Falls)
+    for(const f of S.falls){if(f.y<y0-100||f.y>y1+100)continue;const hw=W.hw(f.y),cx=W.cx(f.y);c.fillStyle='rgba(0,20,25,.35)';c.fillRect(cx-hw,f.y-26,hw*2,22);
+      c.fillStyle='rgba(245,252,252,.92)';c.fillRect(cx-hw,f.y-6,hw*2,10);for(let k=0;k<14;k++){const ph=(t*.8+k*.13)%1;c.fillStyle=`rgba(255,255,255,${.6*(1-ph)})`;c.beginPath();c.arc(cx-hw+(k+.5)/14*hw*2,f.y+6+ph*30,6+ph*12,0,7);c.fill();}}
     // big boulders
     for(let i=lowerIdx(S.bould,y0-80);i<S.bould.length&&S.bould[i].y<y1+80;i++){const q=S.bould[i];rockShape(B(q.y,q.side,q.off),q.y,q.r,q.id,pal.rock);}
     // railroad: ballast, ties, rails
@@ -87,7 +118,7 @@ const SCN={
     // black schist knobs: polished, with pink granite veins
     for(let i=lowerIdx(S.knobs,y0-120);i<S.knobs.length&&S.knobs[i].y<y1+120;i++){const k=S.knobs[i];SCN.knob2D(c,B(k.y,k.side,k.off),k.y,k.r,k.id,k.pink,k.big,k.off<24?k.side:0);}
     // cottonwood groves
-    for(let i=lowerIdx(S.trees,y0-80);i<S.trees.length&&S.trees[i].y<y1+80;i++){const tr=S.trees[i],x=B(tr.y,tr.side,tr.off);SCN.tree2D(c,x,tr.y,tr.r,tr.g,fall,t);}
+    for(let i=lowerIdx(S.trees,y0-80);i<S.trees.length&&S.trees[i].y<y1+80;i++){const tr=S.trees[i],x=B(tr.y,tr.side,tr.off);if(tr.ac)SCN.acacia2D(c,x,tr.y,tr.r,tr.g,t);else SCN.tree2D(c,x,tr.y,tr.r,tr.g,fall,t);}
     // other river parties at camps
     for(const cp of W.camps){if(cp.y<y0-200||cp.y>y1+200)continue;if(!(cp.taken||(G.mode==='day'&&hash2(cp.y|0,7)<.45)))continue;SCN.party2D(c,W,cp,t);}},
   knob2D(c,x,y,r,id,pink,big,side){const nv=11;c.beginPath();for(let k=0;k<nv;k++){const a=k/nv*6.283,rr=r*(.84+hash2(id,k)*.24);c.lineTo(x+Math.cos(a)*rr*(big?1.1:1),y+Math.sin(a)*rr*.9);}c.closePath();
@@ -96,6 +127,8 @@ const SCN={
     c.save();c.clip();c.strokeStyle=pink?'rgba(226,160,150,.75)':'rgba(210,170,165,.16)';c.lineWidth=pink?3:1.2;for(let v=0;v<(pink?2:1);v++){const a=hash2(id,v+20)*3.14;c.beginPath();c.moveTo(x-Math.cos(a)*r*1.2,y-Math.sin(a)*r*1.2);c.quadraticCurveTo(x+(hash2(id,v)-.5)*r,y+(hash2(v,id)-.5)*r,x+Math.cos(a)*r*1.2,y+Math.sin(a)*r*1.2);c.stroke();}
       c.fillStyle='rgba(255,255,255,.14)';c.beginPath();c.ellipse(x-r*.3,y+r*.35,r*.35,r*.18,.6,0,7);c.fill();c.restore();
     if(side)c.strokeStyle='rgba(235,245,245,.35)',c.lineWidth=2,c.beginPath(),c.arc(x,y,r*.98,side>0?Math.PI*.6:-.4*Math.PI,side>0?Math.PI*1.4:.4*Math.PI),c.stroke();},
+  acacia2D(c,x,y,r,g,t){c.fillStyle='rgba(0,0,0,.26)';c.beginPath();c.ellipse(x+r*.35,y-r*.35,r*1.15,r*.8,0,0,7);c.fill();
+    const gr=c.createRadialGradient(x-r*.3,y+r*.3,2,x,y,r*1.2);gr.addColorStop(0,shade(mixHex('#7a9a3a','#a2a24a',g),1.2));gr.addColorStop(1,shade(mixHex('#5a7a2a','#7a7a32',g),.7));c.fillStyle=gr;c.beginPath();c.ellipse(x,y,r*1.15,r*.85,g,0,7);c.fill();},
   tree2D(c,x,y,r,g,fall,t){const hs=(y*13+x)|0,sway=Math.sin(t*1.3+g*9)*1.2;
     c.fillStyle='rgba(0,0,0,.28)';for(let k=0;k<5;k++){c.beginPath();c.arc(x+(hash2(hs,k)-.5)*r*1.2+r*.35,y+(hash2(k,hs)-.5)*r*1.2-r*.4,r*(.5+hash2(hs,k+5)*.3),0,7);c.fill();}
     const base=fall?(g<.65?mixHex('#c79a28','#e0c04a',g/.65):mixHex('#7f8f36','#a0a640',g)):mixHex('#5d7f2f','#86a23e',g);
@@ -115,6 +148,8 @@ const SCN={
         if(p.st==='swim'){c.strokeStyle='rgba(255,255,255,.45)';c.lineWidth=1.5;c.beginPath();c.arc(p.x,p.y,8,0,7);c.stroke();c.fillStyle='#f1c27d';c.beginPath();c.arc(p.x,p.y,3.6,0,7);c.fill();continue;}
         if(p.st==='jump'){c.fillStyle='rgba(0,0,0,.25)';c.beginPath();c.ellipse(p.x,p.y,6,4,0,0,7);c.fill();}
         c.save();c.translate(p.x+z*.18*(sp.side<0?1:-1),p.y-z*.22);c.scale(k,k);c.rotate(p.spin);person(c,0,0,p.col);c.restore();}}
+    for(const q of S.bungee){if(q.y<y0-300||q.y>y1+300)continue;const cyc=q.t%9,z=cyc<1.5?260-cyc/1.5*230:30+30*Math.abs(Math.cos((cyc-1.5)*2.2))*Math.exp(-(cyc-1.5)*.5),x=W.cx(q.y),k=.6+z/200;
+      c.strokeStyle='rgba(30,30,30,.7)';c.lineWidth=1.5;c.beginPath();c.moveTo(x,q.y-10);c.lineTo(x,q.y-10+(260-z)*.08);c.stroke();c.save();c.translate(x,q.y-10+(260-z)*.08);c.scale(k,k);c.rotate(Math.PI);person(c,0,0,'#e74c3c');c.restore();}
     const tr=S.train;if(tr&&tr.y>y0-900&&tr.y<y1+900){const P=y=>SCN.bx(W,y,tr.side,tr.off);
       for(let k=0;k<tr.cars;k++){const yy=tr.y+k*74;if(yy<y0-80||yy>y1+80)continue;const x=P(yy),a=Math.atan2(P(yy+10)-P(yy-10),20);
         c.save();c.translate(x,yy);c.rotate(-a);c.fillStyle='rgba(0,0,0,.3)';c.fillRect(-9+4,-34-4,18,68);
@@ -138,7 +173,7 @@ const SCN={
     inst(new THREE.CylinderGeometry(.7,1,1,6),M3(0xffffff,{roughness:1}),trs,(e)=>{const x=SCN.bx(W,e.y,e.side,e.off),h=e.r*1.3;dm.position.set(TX(x),ground(e.off)+h/2,TZ(e.y));dm.scale.set(e.r*.13,h,e.r*.13);dm.rotation.set(0,0,0);tc.set('#6a5a48');});
     const can=[];trs.forEach(e=>{for(let k=0;k<3;k++)can.push({e,k});});
     inst(new THREE.IcosahedronGeometry(1,1),M3(0xffffff,{roughness:.9,flatShading:true}),can,({e,k})=>{const x=SCN.bx(W,e.y,e.side,e.off)+(hash2(e.y|0,k)-.5)*e.r,h=e.r*1.3;dm.position.set(TX(x),ground(e.off)+h+e.r*.35+k*e.r*.22,TZ(e.y+(hash2(k,e.y|0)-.5)*e.r));dm.scale.set(e.r*.75,e.r*.6,e.r*.75);dm.rotation.set(0,k,0);
-      tc.set(fall?(e.g<.65?'#d2a93a':'#9aa23e'):'#6e9a3a').multiplyScalar(.8+hash2(k,e.y|0)*.35);});
+      if(e.ac){dm.scale.set(e.r*1.1,e.r*.32,e.r*1.1);}tc.set(e.ac?'#7a9a3a':fall?(e.g<.65?'#d2a93a':'#9aa23e'):'#6e9a3a').multiplyScalar(.8+hash2(k,e.y|0)*.35);});
     // tamarisk
     inst(new THREE.IcosahedronGeometry(1,0),M3(0xffffff,{roughness:1,flatShading:true}),sel2(S.tam,50),(m,i)=>{const x=SCN.bx(W,m.y,m.side,m.off);dm.position.set(TX(x),ground(m.off)+m.r*.5,TZ(m.y));dm.scale.set(m.r*1.1,m.r*1.3,m.r*1.1);dm.rotation.set(0,i,0);tc.set(fall&&m.g<.5?'#a8782f':m.g<.5?'#566838':'#6f7d44');});
     // boulders
@@ -152,6 +187,13 @@ const SCN={
       const ties=[];for(let y=a;y<z;y+=14)ties.push(y);inst(new THREE.BoxGeometry(1,1,1),M3(0xffffff,{roughness:1}),ties.map(y=>({y})),(e)=>{const x=SCN.bx(W,e.y,r.side,r.off);dm.position.set(TX(x),hgt+1,TZ(e.y));dm.scale.set(20,1.4,3);dm.rotation.set(0,0,0);tc.set('#5b4632');});
       for(const s of[-5,5]){const rl=[];for(let y=a;y<z;y+=30)rl.push(y);inst(new THREE.BoxGeometry(1,1,1),M3(0xffffff,{metalness:.6,roughness:.35}),rl.map(y=>({y})),(e)=>{const x=SCN.bx(W,e.y+15,r.side,r.off)+s,dx=SCN.bx(W,e.y+30,r.side,r.off)-SCN.bx(W,e.y,r.side,r.off);dm.position.set(TX(x),hgt+2.3,TZ(e.y+15));dm.scale.set(1.2,1.2,31);dm.rotation.set(0,Math.atan2(-dx,30),0);tc.set('#c8ccd0');});}
       if(!ch.train){const tg=new THREE.Group();for(let k=0;k<11;k++){const car=new THREE.Mesh(new THREE.BoxGeometry(17,20,66),M3(k===0?0x4d5864:0xd8dde2,{metalness:k?.6:.2,roughness:.35}));const st=new THREE.Mesh(new THREE.BoxGeometry(17.4,2.5,66.4),M3(k===0?0xc0392b:0x2e5d9e));st.position.y=-1;car.add(st);tg.add(car);}tg.visible=false;grp.add(tg);ch.train={g:tg,hgt};}}
+    // waterfalls down the walls, ice patches, waterfall lips, bungee jumper
+    for(const q of sel2(S.casc,200)){const x=SCN.bx(W,q.y,q.side,8),top=profH(Math.min(400,q.h*1.6));const fallM=new THREE.Mesh(new THREE.PlaneGeometry(q.w*2.2,top),new THREE.MeshBasicMaterial({color:0xeef8ff,transparent:true,opacity:.7,side:THREE.DoubleSide}));fallM.position.set(TX(SCN.bx(W,q.y,q.side,30)),top/2,TZ(q.y));fallM.rotation.y=Math.PI/2;grp.add(fallM);ch.fall=(ch.fall||[]).concat([fallM]);}
+    inst(new THREE.IcosahedronGeometry(1,1),M3(0xf2f8ff,{roughness:.35}),sel2(S.ice,80),(q)=>{const x=SCN.bx(W,q.y,q.side,q.off);dm.position.set(TX(x),ground(q.off)+1,TZ(q.y));dm.scale.set(q.r,3+q.r*.15,q.r*.8);dm.rotation.set(0,hash2(q.id,1)*6,0);tc.set('#f2f8ff');});
+    inst(new THREE.CylinderGeometry(.3,.5,1,4),M3(0xffffff,{roughness:1}),sel2(S.reeds,40),(q)=>{const x=SCN.bx(W,q.y,q.side,q.off);dm.position.set(TX(x),ground(q.off)+q.r,TZ(q.y));dm.scale.set(q.r*.6,q.r*2.4,q.r*.6);dm.rotation.set(0,0,0);tc.set('#8a9a4a');});
+    for(const f of S.falls){if(f.y<y0||f.y>y1)continue;const hw=W.hw(f.y),lip=new THREE.Mesh(new THREE.BoxGeometry(hw*2.1,6,24),M3(0xf4fbfb,{roughness:.6}));lip.position.set(TX(W.cx(f.y)),2,TZ(f.y));grp.add(lip);}
+    if(S.bungee.length){const q=S.bungee.find(q=>q.y>y0&&q.y<y1);if(q){const br=W.bridges.find(b=>Math.abs(b.y-q.y)<200),top=br&&br.high?Math.min(((G.zone&&G.zone.wallH)||G.river.wallH)*.75,520):70;const pm=person3(0xe74c3c);pm.rotation.x=Math.PI;grp.add(pm);
+      const rope=new THREE.Mesh(new THREE.CylinderGeometry(.6,.6,1,4),M3(0x222222));grp.add(rope);ch.bungee={pm,rope,q,top,x:TX(W.cx(q.y)),z:TZ(q.y)};}}
     // other parties at camps
     for(const cp of W.camps){if(cp.y<y0||cp.y>y1)continue;if(!(cp.taken||(G.mode==='day'&&hash2(cp.y|0,7)<.45)))continue;const s=cp.side,hw=W.hw(cp.y),cx=W.cx(cp.y),n=2+Math.floor(hash2(cp.y|0,3)*3),cols=[0xe67e22,0x2e86c1,0x27ae60,0xc0392b,0xf1c40f];
       for(let k=0;k<n;k++){const tent=new THREE.Mesh(new THREE.ConeGeometry(13,16,4),M3(cols[(k+(cp.y|0))%5],{roughness:.8}));tent.rotation.y=Math.PI/4;tent.position.set(TX(cx+s*(hw+38+(k%2)*22)),profH(38)+8,TZ(cp.y-70+k*48));grp.add(tent);}
@@ -166,5 +208,6 @@ const SCN={
   render3D(TX,TZ,t){const ch=R3&&R3.chunk;if(!ch||!G.W.scn)return;const W=G.W,S=W.scn;
     if(ch.scn){for(const {m,p} of ch.scn.jm){m.position.set(TX(p.x),Math.max(-14,p.z)+(p.st==='swim'?-12:0),TZ(p.y));m.rotation.set(p.spin*(p.flip?1:0),0,0);}
       for(const {m,q} of ch.scn.sw){const x=SCN.bx(W,q.y,q.side,q.off)+Math.sin(t*.7+q.ph)*14,y=q.y+Math.cos(t*.5+q.ph)*10;m.position.set(TX(x),heightAt(x,y,t)+2,TZ(y));}}
+    if(ch.bungee){const B=ch.bungee,cyc=B.q.t%9,fr=cyc<1.5?cyc/1.5:1-.12*Math.abs(Math.cos((cyc-1.5)*2.2))*Math.exp(-(cyc-1.5)*.5),y=B.top-fr*(B.top-40);B.pm.position.set(B.x,y,B.z);B.rope.position.set(B.x,(B.top+y)/2+10,B.z);B.rope.scale.set(1,Math.max(1,B.top-y),1);}
     if(ch.train){const tr=S.train,g=ch.train.g;if(!tr){g.visible=false;return;}g.visible=true;g.children.forEach((car,k)=>{const yy=tr.y+k*74,x=SCN.bx(W,yy,tr.side,tr.off),dx=SCN.bx(W,yy+10,tr.side,tr.off)-SCN.bx(W,yy-10,tr.side,tr.off);car.position.set(TX(x),ch.train.hgt+13,TZ(yy));car.rotation.set(0,Math.atan2(-dx,20),0);});}}
 };

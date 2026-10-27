@@ -1,20 +1,26 @@
-# River Run
+# River Rat
+
+**Play now:** https://stevenwsharp-ctrl.github.io/River-Rat/
 
 A whitewater game for computer and phone. Run real stretches of real rivers in a raft, kayak, dory or inner tube.
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (7 code files plus this README):
+Put all of these files in the root of your GitHub repository (11 code files plus this README):
 
 | File | What it does |
 |---|---|
 | `index.html` | The page, the screens and the styles. |
 | `rivers.js` | River data: rapids, camps, history markers, bridges, towns, crowds and boats. |
+| `world-rivers.js` | Rivers on every continent: Zambezi, Mana Pools, Futaleufú, Pacuare, Soča, Sun Kosi, Ganges, Franklin, Kaituna and the Onyx (Antarctica). |
 | `game.js` | The core game: physics, 2D view, controls, leaderboards, history pages. |
 | `trip.js` | Overnight and Expedition modes: camps, crew, supplies, boats in your trip, events, camp scene, save and continue. |
 | `scenes.js` | Animated painted scenes for history pages, stops, take-outs and dangers. |
 | `three-d.js` | The 3D view near big rapids, landmarks and bridges. |
 | `scenery.js` | Real scenery for each river: black schist bluffs and cliff jumpers at Black Rocks, cottonwoods, tamarisk, the railroad and train, debris fans, boulders, hoodoos, ledges and other camps. |
+| `wild.js` | Crocodiles, hippos, elephants, monkeys and more. Hippo charges, crocs near swimmers, cold water and hypothermia, quick rescues, people falling in, portages and waterfalls. |
+| `pixel.js` | Retro pixel art: the River Rat mascot, the title picture, scene cards, end pictures. |
+| `map.js` | The world map on the main menu (Natural Earth 1:110m land, public domain). |
 
 ## Controls
 
@@ -97,6 +103,14 @@ Facts are short summaries for a game. Some miles are approximate.
 ## Grand Canyon data
 
 `rivers.js` has one shared Grand Canyon list (`GC_RAPIDS`, `GC_POIS`, `GC_CAMPS`, `GC_ZONES`) from Lees Ferry to Diamond Creek. The sections and the full expedition are cut from it with `gcSection()`. Change a rapid once and every section gets the change.
+
+## Expedition vitals
+
+In Expedition mode a bar shows six vitals: 🚽 Groover, 🩹 First Aid, 🛶 Paddles, 🛟 Raft, 🍲 Food and 💧 Water. Buy them at the outfitter. A groover can holds about 8 person-days. At camp, a retro status card shows the date, weather, water temperature, health, food, next rapid and miles.
+
+## Cold water
+
+Each river has a water temperature (`waterF`). A swimmer gets colder every second. In very cold water (Onyx, Soča, Grand Canyon) hypothermia comes fast. A rescue in under 5 seconds is a Quick Rescue bonus.
 
 ## Real river bends
 

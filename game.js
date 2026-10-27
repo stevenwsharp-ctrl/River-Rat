@@ -125,7 +125,8 @@ function buildWorld(R,levelKey,d3){
       if(h.t==='hole'){const pw=h.p*lv.holes;add({t:'hole',x,y:yy,rx:h.s*(.06+s*.06)*W.hw(yy),ry:18+pw*16,pow:pw,name:h.n,pour:!!h.pour});}
       else if(h.t==='rock')add({t:'rock',x,y:yy,r:h.r,name:h.n});
       else if(h.t==='wave')add({t:'wave',x,y:yy,w:h.w*W.hw(yy),h:h.h,name:h.n});
-      else if(h.t==='boil')add({t:'boil',x,y:yy,r:h.r,pow:1,name:h.n});}
+      else if(h.t==='boil')add({t:'boil',x,y:yy,r:h.r,pow:1,name:h.n});
+      else if(h.t==='hippo'){(W.hippoSpots=W.hippoSpots||[]).push({x,y:yy});}}
   }
   // landmarks in the river
   W.marks=[];for(const mk of (R.marks||[])){const yy=W.yAtMile(mk.m);if(yy===null)continue;W.marks.push({...mk,y:yy});add({t:'rock',x:X(mk.u,yy),y:yy,r:mk.r,name:mk.n,tall:true});}
@@ -238,7 +239,7 @@ function drawCraft(c,key,ph,flipped,nPeople,kp,col){
 }
 
 /* ================= SETTINGS + MENU ================= */
-const sel=Object.assign({craft:'raft',river:'gray',level:'med',d3:'big',mode:'day',facts:true,tips:true,ctrl:'arcade',name:'Boatman'},store.get('riverrun_settings',{}));
+const sel=Object.assign({craft:'raft',river:'gray',level:'med',d3:'big',mode:'day',facts:true,tips:true,ctrl:'arcade',name:'Boatman',retro:true,cont:''},store.get('riverrun_settings',{}));
 if(!RIVERS.some(r=>r.id===sel.river))sel.river='gray';
 function saveSel(){store.set('riverrun_settings',sel);}
 function riverOK(R,mode){if(R.expOnly&&mode!=='expedition')return false;return !(R.dayOnly&&mode!=='day');}
@@ -256,14 +257,17 @@ function buildMenu(){
     const x=pc.getContext('2d');x.scale(2,2);x.translate(45,50);x.fillStyle='rgba(63,127,111,.35)';x.beginPath();x.arc(0,0,44,0,7);x.fill();drawCraft(x,k,.6,false);
     d.appendChild(pc);d.insertAdjacentHTML('beforeend',`<div class="tag">${c.tag}</div><h3>${c.name}</h3><p>${c.desc}</p>`);
     d.onclick=()=>{sel.craft=k;buildMenu();};cg.appendChild(d);}
+  // world map + continent filter
+  if(typeof MAP!=='undefined'&&$('worldMap'))MAP.mount($('worldMap'));
+  const cf=$('contChips');if(cf){cf.innerHTML='';[['','All']].concat(CONTINENTS.map(c=>[c,c])).forEach(([k,n])=>{const cnt=k?RIVERS.filter(r=>r.cont===k).length:RIVERS.length;if(!cnt)return;const b=document.createElement('button');b.className='pill'+((sel.cont||'')===k?' sel':'');b.innerHTML=`${n}<small>${cnt} river${cnt>1?'s':''}</small>`;b.onclick=()=>{sel.cont=k;if(typeof MAP!=='undefined'&&MAP.cv){if(k&&CONT_BOX[k])MAP.zoomBox(CONT_BOX[k]);else MAP.zoomWorld();}buildMenu();};cf.appendChild(b);});}
   // rivers + leaderboards
   const rg=$('rivers');rg.innerHTML='';
-  for(const R of RIVERS){
+  for(const R of RIVERS){if(sel.cont&&R.cont!==sel.cont&&R.id!==sel.river)continue;
     const hi=R.rapids.reduce((a,r)=>sev(R,r.c)>sev(R,a.c)?r:a),lo=R.rapids.reduce((a,r)=>sev(R,r.c)<sev(R,a.c)?r:a);
     const ok=riverOK(R,sel.mode),tops=LB.top(R.id,sel.mode,'score',3),fast=LB.top(R.id,sel.mode,'time',1)[0];
     const d=document.createElement('div');d.className='card river'+(sel.river===R.id?' sel':'')+(ok?'':' dim');
     const lbRows=tops.length?tops.map((t,i)=>`<div class="lbr"><span>${['🥇','🥈','🥉'][i]} ${esc(t.name)}</span><span>${CRAFTS[t.craft]?CRAFTS[t.craft].name.split(' ').pop():''}</span><b>${t.score}</b></div>`).join(''):'<div class="lbr empty">No runs yet. Be the first!</div>';
-    d.innerHTML=`<div class="tag">${R.scale==='gc'?`CLASS ${lo.c}–${hi.c} / 10`:`CLASS ${lo.c}–${hi.c}`}</div><h3>${R.name}</h3><div class="where">${R.river} · ${R.stretch}</div><p>${R.blurb}</p>
+    d.innerHTML=`<div class="tag">${R.scale==='gc'?`CLASS ${lo.c}–${hi.c} / 10`:`CLASS ${lo.c}–${hi.c}`}</div><h3>${R.name}</h3><div class="where">${R.cont&&R.cont!=='North America'||R.country&&R.country!=='USA'?'🌍 '+esc(R.country||R.cont)+' · ':''}${R.river} · ${R.stretch}${R.waterF?` · 🌡 ${R.waterF}°F water`:''}</div><p>${R.blurb}</p>
       <div class="lb"><div class="lbh">🏆 Top ${MODES[sel.mode].name} scores</div>${lbRows}<div class="lbf">⏱ Fastest: ${fast?`<b>${fmtTime(fast.time)}</b> · ${esc(fast.name)}`:'—'}</div></div>
       ${ok?`<button class="run">▶ Run this river</button>`:`<div class="note2">${R.expOnly?'Expedition only: pick Expedition above.':'Day trip only (no camping in this canyon).'}</div>`}`;
     d.onclick=e=>{if(!ok)return;sel.river=R.id;if(e.target.classList.contains('run')){startFlow();return;}buildMenu();};
@@ -277,6 +281,7 @@ function buildMenu(){
   $('missionBox').innerHTML=`<div class="lbh">🎯 Today's goals · 💰 ${store.get('riverrun_bucks',0)} River Bucks</div>${missionsHtml(true)}`;
   const dg=$('d3');dg.innerHTML='';
   [['big','Big rapids','Class III+ / GC 5+, landmarks, bridges'],['all','Every rapid','more 3D, more paddling'],['off','Off','2D only']].forEach(([k,n,dd])=>{const b=document.createElement('button');b.className='pill'+(sel.d3===k?' sel':'');b.innerHTML=`${n}<small>${HAS3D()||k==='off'?dd:'needs internet (three.js)'}</small>`;b.onclick=()=>{sel.d3=k;buildMenu();};dg.appendChild(b);});
+  if($('retroBtn')){$('retroBtn').textContent=sel.retro!==false?'🕹 Retro art: ON':'🕹 Retro art: OFF';$('retroBtn').classList.toggle('sel',sel.retro!==false);}
   $('factsBtn').textContent=sel.facts?'📜 History & facts: ON':'📜 History & facts: OFF';
   $('tipsBtn').textContent=sel.tips?'💡 Tips: ON':'💡 Tips: OFF';$('tipsBtn').classList.toggle('sel',sel.tips);
   const sv=TRIP.loadSave(),cb=$('contBtn');if(sv){const RR=RIVERS.find(r=>r.id===sv.river);cb.style.display='inline-block';cb.textContent=`▶ Continue expedition: ${RR?RR.name:sv.river} · Day ${sv.day}/${sv.days}`;}else cb.style.display='none';
@@ -286,6 +291,7 @@ function buildMenu(){
 }
 $('pname').addEventListener('input',e=>{sel.name=(e.target.value||'Boatman').slice(0,18);saveSel();});
 $('factsBtn').onclick=()=>{sel.facts=!sel.facts;buildMenu();};
+if($('retroBtn'))$('retroBtn').onclick=()=>{sel.retro=!sel.retro;if(typeof MAP!=='undefined')MAP.dirty=true;buildMenu();};
 $('tipsBtn').onclick=()=>{sel.tips=!sel.tips;if(sel.tips)store.set('riverrun_coach',[]);buildMenu();};
 $('contBtn').onclick=()=>TRIP.continueSave();
 $('badgesBtn').onclick=()=>showBadges();
@@ -484,8 +490,8 @@ function respawn(){
   toast('Back in the boat','#fff',1);
 }
 const SWIM_NAMES=['Sam','Jo','Alex','Riley','Casey','Max','Kit','Lou'];
-function maybeMOB(p){
-  if(G.swim||G.state!=='run'||G.craft.crew<2||G.inv>0||Math.random()>p)return;
+function maybeMOB(p,force){
+  if(G.swim||G.state!=='run'||G.craft.crew<2||(!force&&(G.inv>0||Math.random()>p)))return;
   const name=TRIP.pickSwimmer()||SWIM_NAMES[Math.floor(Math.random()*SWIM_NAMES.length)];
   const b=G.b,s=Math.random()<.5?-1:1;
   G.swim={x:b.x+Math.cos(b.h)*s*(G.craft.wid*.6+12),y:b.y-Math.sin(b.h)*s*(G.craft.wid*.6+12),t:0,name,lost:0};
@@ -497,8 +503,9 @@ function updSwimmer(dt){
   s.t+=dt;const f=flowAt(s.x,s.y);s.x+=f.vx*.92*dt+Math.sin(s.t*2)*8*dt;s.y+=f.vy*.92*dt;
   const W=G.W,c=W.cx(s.y),hw=W.hw(s.y);s.x=clamp(s.x,c-hw+10,c+hw-10);
   const loss=(G.river.id.startsWith('gc')?2.6:1.3)*dt;s.lost+=loss;TRIP.swimmerHurt(s.name,loss);
+  if(typeof WILD!=='undefined'&&!WILD.swimTick(s,dt))return;
   const b=G.b,d=Math.hypot(b.x-s.x,b.y-s.y);
-  if(d<G.craft.r+22&&G.state==='run'){G.swim=null;G.rescues++;bump('rescues');missionBump('rescue');const p=Math.max(40,Math.round(160-s.t*4));G.score+=p;toast(`Pulled ${s.name} back in! +${p}`,'#5fd38d',1.6);AU.chime();return;}
+  if(d<G.craft.r+22&&G.state==='run'){G.swim=null;G.rescues++;bump('rescues');missionBump('rescue');const p=Math.max(40,Math.round(160-s.t*4));G.score+=p;if(!(typeof WILD!=='undefined'&&WILD.rescued(s)))toast(`Pulled ${s.name} back in! +${p}`,'#5fd38d',1.6);AU.chime();return;}
   if(s.t>32||s.y>W.len-120){G.swim=null;G.score=Math.max(0,G.score-150);toast(`${s.name} swam to shore. Lost time and points.`,'#ff8a7a',2);TRIP.swimmerHurt(s.name,12);}
 }
 function updDebris(dt){
@@ -525,7 +532,8 @@ function endGame(ok,reason){
   LB.add(run);
   const rs=LB.rank(run,'score'),rt=ok?LB.rank(run,'time'):0;
   $('hud').style.display='none';$('hbtns').style.display='none';$('boostBox').style.display='none';$('controls').style.display='none';$('toWarn').style.display='none';$('coach').style.display='none';hideBanner();hideFact();
-  $('endWrap').innerHTML=`<h1>${ok?'Take-out!':'Trip over'}</h1><div class="sub">${ok?`${G.river.name} · ${G.craft.name} · ${MODES[G.mode].name} · ${G.lvl.name} water`:esc(reason)}</div>
+  const ek=PIX.endKind(ok,reason);
+  $('endWrap').innerHTML=`<canvas id="endArt" class="endart"></canvas><div class="retrocap">${esc(PIX.endCaption(ek,reason))}</div><h1>${ok?'Take-out!':'Trip over'}</h1><div class="sub">${ok?`${G.river.name} · ${G.craft.name} · ${MODES[G.mode].name} · ${G.lvl.name} water`:esc(reason)}</div>
    <div class="grade">${grade}</div>
    ${rs&&rs<=3?`<div class="rank">🏆 #${rs} for points on this river (${MODES[G.mode].name})</div>`:''}${rt&&rt<=3?`<div class="rank">⏱ #${rt} fastest trip</div>`:''}
    <div class="stats"><div><b>${sc}</b>Score</div><div><b>${fmtTime(G.t)}</b>River time</div><div><b>${G.clean}/${total}</b>Clean lines</div><div><b>${G.swims}</b>Swims</div><div><b>${Math.round(G.hp/G.hpMax*100)}%</b>Hull</div><div><b>${G.rescues}/${G.mobCount}</b>Rescues</div><div><b>${'★'.repeat(Math.min(5,Math.round(G.stars/Math.max(1,total*3)*5)))||'—'}</b>${G.stars}/${total*3} stars</div><div><b>${G.bestStreak||0}</b>Best streak</div></div>
@@ -533,6 +541,7 @@ function endGame(ok,reason){
    ${extra.html||''}
    <button class="big" id="againBtn">Run it again</button><button class="ghost" id="endMenuBtn">Main menu & leaderboards</button>`;
   $('end').style.display='block';
+  {const cv=$('endArt'),t0=performance.now();const f=()=>{if($('end').style.display==='none'||!cv.isConnected)return;PIX.endArt(cv,ek,(performance.now()-t0)/1000,G&&G.river);setTimeout(()=>requestAnimationFrame(f),80);};f();}
   $('againBtn').onclick=()=>startFlow();$('endMenuBtn').onclick=toMenu;
   setTimeout(()=>AU.suspend(),400);
 }
@@ -648,7 +657,7 @@ function update(dt){
   if(G.factQ.length&&G.factT<=0&&!G.mode3d){const p=G.factQ.shift();SEEN.add(p.id);showFact(p);}
   if(G.pageQ.length&&inCalm()&&G.t>1.2){const p=G.pageQ.shift();SEEN.add(p.id);openPage(p);return;}
   TRIP.update(dt);
-  updLandings();updFauna(dt);if(typeof SCN!=='undefined')SCN.update(dt);updRecord(dt);
+  updLandings();updFauna(dt);if(typeof SCN!=='undefined')SCN.update(dt);if(typeof WILD!=='undefined')WILD.update(dt);updRecord(dt);
   if(G.state==='run'&&b.y>=W.len){if(W.takeout)missedTakeout();else endGame(true);}
 }
 function onWave(w,push){
@@ -766,18 +775,20 @@ function openStop(s){
 
 /* ================= WILDLIFE ================= */
 const FAUNA_SETS={gc:{raven:.26,condor:.12,heron:.14,bighorn:.18,fish:.18,ducks:.12},desert:{raven:.22,heron:.18,bighorn:.12,beaver:.16,fish:.14,ducks:.18},forest:{raven:.2,heron:.22,deer:.2,ducks:.18,fish:.2}};
-function spawnFauna(){const R=G.river,set=R.trees?FAUNA_SETS.forest:R.scale==='gc'?FAUNA_SETS.gc:FAUNA_SETS.desert,b=G.b,W=G.W;
+function spawnFauna(){const R=G.river,set=R.fauna?R.fauna:R.trees?FAUNA_SETS.forest:R.scale==='gc'?FAUNA_SETS.gc:FAUNA_SETS.desert,b=G.b,W=G.W;
   let r=Math.random(),k='raven';for(const [kk,p] of Object.entries(set)){if(r<p){k=kk;break;}r-=p;}
   if(k==='condor'&&W.mileAt(b.y)>140)k='raven';
   const y=b.y+350+Math.random()*900;if(y>W.len)return;const side=Math.random()<.5?-1:1,cx=W.cx(y),hw=W.hw(y),f={k,y,t:0,side,ph:Math.random()*6};
+  if(typeof WILD!=='undefined'&&WILD.kinds[k]){if(WILD.spawn(k,f,cx,hw,side))G.fauna.push(f);return;}
   if(k==='raven'||k==='condor'){f.x=cx-side*(hw+260);f.vx=side*(k==='condor'?40:95);f.vy=(Math.random()-.5)*40;f.alt=k==='condor'?220:90;}
   else if(k==='heron'||k==='deer'||k==='bighorn'){f.x=cx+side*(hw+(k==='heron'?-8:k==='deer'?30:45+Math.random()*40));f.state='stand';f.off=k==='heron'?-8:45;}
   else if(k==='fish'){f.x=cx+(Math.random()-.5)*hw*1.4;f.life=1.4;}
   else{f.x=cx+side*(hw-30);f.n=k==='ducks'?4+Math.floor(Math.random()*3):1;}
   G.fauna.push(f);}
 function updFauna(dt){
-  G.faunaT-=dt;if(G.faunaT<=0){G.faunaT=1.1;if(G.fauna.length<9&&G.W.rint(G.b.y)<.4)spawnFauna();}
+  G.faunaT-=dt;if(G.faunaT<=0){G.faunaT=G.river.hippoZone?.8:1.1;if(G.fauna.length<9&&G.W.rint(G.b.y)<.4)spawnFauna();}
   const b=G.b;for(let i=G.fauna.length-1;i>=0;i--){const f=G.fauna[i];f.t+=dt;const d=Math.hypot(f.x-b.x,f.y-b.y);
+    if(typeof WILD!=='undefined'&&WILD.kinds[f.k]){if(!WILD.upd(f,dt,d)||f.y<b.y-900||f.t>90){G.fauna.splice(i,1);}continue;}
     if(f.k==='raven'||f.k==='condor'){f.x+=f.vx*dt;f.y+=f.vy*dt+Math.sin(f.t*(f.k==='condor'?.4:1))*12*dt;}
     else if(f.k==='heron'){if(f.state==='stand'&&d<200){f.state='fly';f.vx=f.side*80;f.vy=70;AU.burst(1800,4,.05,.2);}if(f.state==='fly'){f.x+=f.vx*dt;f.y+=f.vy*dt;}}
     else if(f.k==='bighorn'||f.k==='deer'){if(d<230&&f.state==='stand')f.state='run';if(f.state==='run'){f.x+=f.side*35*dt;f.y+=30*dt;f.off+=35*dt;}}
@@ -786,6 +797,7 @@ function updFauna(dt){
     if(f.y<b.y-900||f.t>60||Math.abs(f.x-G.W.cx(f.y))>G.W.hw(f.y)+900)G.fauna.splice(i,1);}
 }
 function drawFauna(c,t){for(const f of G.fauna){
+  if(typeof WILD!=='undefined'&&WILD.kinds[f.k]){WILD.draw2D(c,f,t);continue;}
   if(f.k==='raven'||f.k==='condor'){const s=f.k==='condor'?2.2:1,fl=Math.sin(t*(f.k==='condor'?2:9)+f.ph)*(f.k==='condor'?3:7);c.fillStyle='rgba(0,0,0,.16)';c.beginPath();c.ellipse(f.x+f.alt*.3,f.y-f.alt*.4,12*s,3*s,0,0,7);c.fill();
     c.strokeStyle='#15151a';c.lineWidth=3*s;c.beginPath();c.moveTo(f.x-16*s,f.y+fl);c.lineTo(f.x,f.y);c.lineTo(f.x+16*s,f.y+fl);c.stroke();
     if(f.k==='condor'){c.strokeStyle='#ededed';c.lineWidth=2.4;c.beginPath();c.moveTo(f.x-13*s,f.y+fl*.9-2);c.lineTo(f.x-5*s,f.y-2);c.moveTo(f.x+13*s,f.y+fl*.9-2);c.lineTo(f.x+5*s,f.y-2);c.stroke();}}
@@ -847,7 +859,7 @@ function drawProgress(){G.progT-=.1;if(G.progT>0)return;G.progT=.25;const cv=$('
   c.fillStyle='#ffb347';c.beginPath();c.arc(X(G.b.y),7.5,5,0,7);c.fill();c.strokeStyle='#000';c.lineWidth=1;c.stroke();}
 
 /* ================= COACH TIPS (first runs) ================= */
-const COACH={click:'Drag or tap where you want to go. The boat moves there and keeps itself straight. Up = faster, down = slower. ⚡ = boost.',
+const COACH={hippo:'Hippos rest in deep water. Stay near the shallow bank and give them lots of room. If one charges, row away fast!',cold:'Cold water! A swimmer gets hypothermia fast. Rescue them quickly. Warm layers help on expeditions.',click:'Drag or tap where you want to go. The boat moves there and keeps itself straight. Up = faster, down = slower. ⚡ = boost.',
   ring:'Keep the ring around your boat GREEN: hit waves and holes straight, bow or stern first.',
   pull:'Tip: pulling (back-rowing) is stronger than pushing. Right-click a spot to back-row there, or hold PULL to slow down and ferry.',
   stop:'Optional stop ahead! Land on the beach to hike, swim or eat lunch.',ff:'Calm water: tap ⏩ (or F) to fast-forward.',
@@ -857,7 +869,7 @@ function coach(id){const seen=store.get('riverrun_coach',[]);if(seen.includes(id
 function coachDone(){const el=$('coach');if(el.style.display==='block'&&/Tap or click/.test(el.textContent))el.style.display='none';}
 
 /* ================= BADGES ================= */
-const BADGES=[['first','First Descent','Finish any river.'],['takeout','Right on Time','Land at a take-out.'],['clean','Clean Sweep','Finish a river with every rapid clean.'],
+const BADGES=[['first','First Descent','Finish any river.'],['falls','Waterfall Rat','Raft a waterfall and land it straight.'],['quick','Quick Hands','Rescue a swimmer in under 5 seconds.'],['world','World River Rat','Finish rivers on 4 continents.'],['croc','Croc Dodger','Finish a crocodile river with no bites.'],['takeout','Right on Time','Land at a take-out.'],['clean','Clean Sweep','Finish a river with every rapid clean.'],
   ['streak5','On Fire','Run 5 rapids clean in a row.'],['three','Triple Star','Get 3 stars on a big rapid (Class 8+ or V).'],['crystal','Crystal Clear','Run Crystal clean.'],['lava','Lava Lord','Run Lava Falls clean.'],
   ['life','Lifeguard','Rescue 3 swimmers.'],['roll','Combat Roll','Roll your kayak back up.'],['carnage','Crowd Pleaser','Flip in front of a crowd.'],
   ['history','History Buff','Read 10 history pages.'],['lunch','Long Lunch','Eat lunch at 3 stops.'],['explore','Explorer','Land at 10 side stops.'],['camp','Happy Camper','Spend 5 nights at camp.'],
@@ -868,7 +880,8 @@ function award(id){const have=store.get('riverrun_badges',[]);if(have.includes(i
 function bump(k){const c=store.get('riverrun_counts',{});c[k]=(c[k]||0)+1;store.set('riverrun_counts',c);
   if(k==='pages'&&c[k]>=10)award('history');if(k==='lunch'&&c[k]>=3)award('lunch');if(k==='explore'&&c[k]>=10)award('explore');if(k==='rescues'&&c[k]>=3)award('life');if(k==='nights'&&c[k]>=5)award('camp');}
 function endBadges(){award('first');const R=G.river;if(G.clean===G.W.rapids.length&&G.W.rapids.length>0)award('clean');if(G.lvlKey==='flood')award('flood');
-  if(R.scale==='gc'&&G.ck==='dory'&&G.swims===0)award('dory');if(G.ck==='tube'&&R.rapids.some(r=>sev(R,r.c)>=.65))award('tube');if(R.id==='gc-full')award('full');}
+  if(R.scale==='gc'&&G.ck==='dory'&&G.swims===0)award('dory');if(G.ck==='tube'&&R.rapids.some(r=>sev(R,r.c)>=.65))award('tube');if(R.id==='gc-full')award('full');
+  const cs=store.get('riverrun_conts',[]);if(R.cont&&!cs.includes(R.cont)){cs.push(R.cont);store.set('riverrun_conts',cs);}if(cs.length>=4)award('world');if(R.fauna&&R.fauna.croc&&!G.crocBites)award('croc');}
 function showBadges(){const have=store.get('riverrun_badges',[]),cnt=store.get('riverrun_counts',{});
   $('lbWrap').innerHTML=`<h1>Bad<span>ges</span></h1><div class="sub">${have.length} of ${BADGES.length} earned · ${cnt.explore||0} stops · ${cnt.pages||0} pages read · ${cnt.nights||0} nights at camp</div>
    <div class="grid">${BADGES.map(b=>`<div class="card ${have.includes(b[0])?'sel':'dim'}"><h3>${have.includes(b[0])?'🏅':'🔒'} ${b[1]}</h3><p>${b[2]}</p></div>`).join('')}</div><button class="big" id="lbBack">Back</button>`;
@@ -1063,7 +1076,7 @@ function render(){
     ctx.strokeStyle='#ff6b5b';ctx.beginPath();ctx.arc(bx,byy,gr,-Math.PI/2+tl,Math.PI/2-tl);ctx.stroke();ctx.beginPath();ctx.arc(bx,byy,gr,Math.PI/2+tl,Math.PI*1.5-tl);ctx.stroke();
     const ha=-Math.PI/2+b.h;ctx.globalAlpha=Math.min(1,gaugeA+.2);ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(bx+Math.cos(ha)*(gr-8),byy+Math.sin(ha)*(gr-8));ctx.lineTo(bx+Math.cos(ha)*(gr+8),byy+Math.sin(ha)*(gr+8));ctx.stroke();ctx.globalAlpha=1;}
   ctx.save();ctx.translate(bx,byy);ctx.fillStyle='rgba(0,0,0,.25)';ctx.beginPath();ctx.ellipse(4*sc,6*sc,c.wid*.55*sc,c.len*.5*sc,b.h,0,7);ctx.fill();
-  ctx.rotate(b.h);const bs=sc*(1+b.bounce*Math.sin(t*18));ctx.scale(bs,bs);
+  ctx.rotate(b.h);const air=G.airT>0?Math.sin((1-G.airT/1.1)*Math.PI)*.55:0;const bs=sc*(1+b.bounce*Math.sin(t*18)+air);ctx.scale(bs,bs);
   if(G.inv>0&&Math.floor(t*10)%2)ctx.globalAlpha=.55;
   drawCraft(ctx,G.ck,G.oa,G.state==='flip',G.swim?c.crew-1:c.crew,G.kp);ctx.globalAlpha=1;ctx.restore();
   if(G.state==='flip'){const nsw=c.crew;for(let i=0;i<nsw;i++){const a=t*1.3+i*2.1,x=bx+Math.cos(a)*(c.len*.5+12)*sc,y=byy+Math.sin(a*1.2)*(c.len*.4+10)*sc;ctx.fillStyle='#ff8c1a';ctx.beginPath();ctx.arc(x,y,7*sc+2,0,7);ctx.fill();ctx.fillStyle='#f1c27d';ctx.beginPath();ctx.arc(x,y,4*sc+1.5,0,7);ctx.fill();}}
@@ -1078,7 +1091,7 @@ function render(){
   if(G.boostT>0){ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=2;for(let i=0;i<14;i++){const x=hash2(i,Math.floor(t*20))*VW,y=(t*900+i*97)%VH;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x,y+60);ctx.stroke();}}
   // swimmer arrow when off screen
   if(G.swim){const [sx,sy]=S(G.swim.x,G.swim.y);if(sy<60||sy>VH-60||sx<20||sx>VW-20){const ax=clamp(sx,30,VW-30),ay=clamp(sy,90,VH-90);ctx.fillStyle='#ff8c1a';ctx.beginPath();ctx.arc(ax,ay,12,0,7);ctx.fill();ctx.fillStyle='#000';ctx.fillText('!',ax,ay+4);}
-    else label(`🛟 ${G.swim.name}`,sx,sy-22,'#ff8c1a');}
+    else label(`🛟 ${G.swim.name}${G.swim.cold>8?' 🥶'+Math.round(G.swim.cold)+'%':''}`,sx,sy-22,G.swim.cold>60?'#9fe3ff':'#ff8c1a');}
 
 }
 
@@ -1107,6 +1120,7 @@ function updHud(dt){
   $('hTime').textContent=fmtTime(G.t);
   const mx=TRIP.maxSwims();$('hSwims').textContent='Swims '+'●'.repeat(Math.min(G.swims,mx))+'○'.repeat(Math.max(0,mx-G.swims));
   const p=G.hp/G.hpMax;const hp=$('hHp');hp.style.width=(p*100)+'%';hp.style.background=p>.6?'#5fd38d':p>.3?'#ffb347':'#ff6b5b';
+  {const vb=$('vitals');if(vb){const V=G.mode==='expedition'?TRIP.vitals():null;vb.style.display=V?'flex':'none';if(V)vb.innerHTML=V.map(x=>`<div class="v" title="${x.name}: ${x.txt}"><span>${x.icon}</span><i><b style="width:${Math.round(x.v*100)}%;background:${x.v>.5?'#5fd38d':x.v>.25?'#ffb347':'#ff6b5b'}"></b></i></div>`).join('');}}
   $('hCrew').innerHTML=TRIP.crewHud()+(G.streak>1?` <span class="chip streak">🔥×${streakMul().toFixed(1)}</span>`:'')+(G.ghost?` <span class="chip ghost">👻 ${ghostTxt()}</span>`:'');
   drawProgress();
   {const bb=$('boostFill');if(bb){bb.style.width=G.boost+'%';$('boostBox').classList.toggle('ready',G.boost>=34);}}
@@ -1131,6 +1145,7 @@ function frame(ts){
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();
   if(e.target&&e.target.tagName==='INPUT')return;
   if(G&&['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k))e.preventDefault();
+  if((k===' '||k==='enter')&&!e.repeat){for(const id of['scenePanel','campPanel']){const scr=$(id).parentNode;if(scr&&scr.style.display==='block'){const bt=$(id).querySelector('.cbtns button');if(bt){bt.click();return;}}}}
   if((k===' '||k==='p'||k==='escape')&&!e.repeat){if(G&&G.state==='page'){closePage();return;}if(G)togglePause();return;}
   if(G&&G.mode3d&&G.craft.pd&&!e.repeat&&G.state==='run'){if(k==='arrowleft'||k==='a')queueStroke('L');else if(k==='arrowright'||k==='d')queueStroke('R');else if(k==='arrowup'||k==='w')queueStroke('B');}
   if(k==='f'&&!e.repeat)toggleFF();
