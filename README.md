@@ -4,19 +4,20 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository:
+Put all of these files in the root of your GitHub repository (6 code files plus this README):
 
 | File | What it does |
 |---|---|
 | `index.html` | The page, the screens and the styles. |
 | `rivers.js` | River data: rapids, camps, history markers, bridges, towns, crowds and boats. |
 | `game.js` | The core game: physics, 2D view, controls, leaderboards, history pages. |
-| `trip.js` | Overnight and Expedition modes: camps, crew, supplies, events, camp scene. |
+| `trip.js` | Overnight and Expedition modes: camps, crew, supplies, boats in your trip, events, camp scene, save and continue. |
+| `scenes.js` | Animated painted scenes for history pages, stops, take-outs and dangers. |
 | `three-d.js` | The 3D view near big rapids, landmarks and bridges. |
 
 ## Publish on GitHub Pages
 
-1. Upload the five files to the root of the repository.
+1. Upload all the files to the root of the repository.
 2. Go to **Settings → Pages**.
 3. Set **Source** to "Deploy from a branch", branch `main`, folder `/ (root)`.
 4. Wait about one minute. Open the link that GitHub shows.
@@ -78,3 +79,11 @@ Each river in `rivers.js` has:
 - `camps`, `bridges`, `towns`, `crowds`.
 
 Facts are short summaries for a game. Some miles are approximate.
+
+## Grand Canyon data
+
+`rivers.js` has one shared Grand Canyon list (`GC_RAPIDS`, `GC_POIS`, `GC_CAMPS`, `GC_ZONES`) from Lees Ferry to Diamond Creek. The sections and the full expedition are cut from it with `gcSection()`. Change a rapid once and every section gets the change.
+
+## Take-outs and stops
+
+Each river has a `takeout` with `miss` text that shows when a player floats past. Markers with `stop` (`hike`, `swim`, `lunch`, `view`) are optional landings. `scene` picks the painted scene type (for example `cavern`, `spring`, `ruin`, `granary`, `turquoise`, `takeout`).
