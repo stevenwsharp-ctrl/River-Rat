@@ -1,3 +1,6 @@
+/* Real river bends. Lateral offset (meters, river right = +) of the river from its smoothed course, every 0.25 mile.
+   Made from Natural Earth 1:10m river centerlines (public domain). Small bends under about 2 miles are not in this data. */
+const RIVER_PATHS={"ruby":{"m0":0,"step":0.25,"off":[39,10,-17,-34,-40,-56,-80,-111,-148,-155,-116,-85,-60,-39,-23,-11,-3,0,0,0,5,15,32,56,94,148,223,320,362,405,474,542,535,474,348,243,160,96,50,20,5,0,0,0,0,0,1,8,20,38,62,91,116,134,130,40,-55,-157,-265,-382,-326,-268,-219,-182,-160,-154,-128,-89,-65,-39,-10,23,59,99,144,198,264,245,211,190,181,184,184,133,93,65,41,20,2,-15,-29,-41,-58,-72,-68,-46,-27,-11,-1,4,34]},"westwater":{"m0":0,"step":0.25,"off":[0,0,0,0,-3,-1,7,19,36,51,69,90,82,62,45,31,19,11,4,1,0,0,-2,-8,-17,-31,-48,-69,-94,-123,-121,-93,-68,-47,-30,-17,-7,-2,0,0,0,0,2,7,16,27,42,59,82,112,114,104,102,106,119,144,149,131,126,131,145,153,153,96,49,7,-26,-48,-53]},"cataract":{"m0":0,"step":0.25,"off":[-61,-1,23,42,62,80,54,30,6,-4,-13,-22,-34,-47,-63,-83,-108,-122,-94,-70,-49,-32,-19,-9,-3,0,0,0,0,0,0,0,0,0,3,10,20,35,53,75,101,131,116,88,68,57,57,66,86,116,156,203,190,144,105,72,46,18,2,-2,0,0,0,0,0]},"deso":{"m0":0,"step":0.25,"off":[125,50,47,-1,-95,-226,-375,-450,-451,-429,-291,-135,3,63,111,149,149,129,116,117,134,168,213,221,213,217,176,145,125,115,115,82,57,38,26,15,8,2,0,0,0,-2,-10,-23,-49,-93,-156,-241,-348,-438,-512,-611,-549,-442,-360,-272,-143,-14,118,254,400,563,742,646,523,384,259,161,90,43,22,23,32,49,71,96,125,119,91,67,46,29,16,7,2,-2,-7,-15,-27,-42,-61,-83,-109,-110,-95,-95,-112,-145,-194,-260,-338,-426,-318,-218,-125,-40,42,120,139,144,147,159,181,199,149,108,77,53,37,29,28,34,46,61,66,51,38,26,17,10,5,1,0,0,0,0,5,14,27,46,69,97,129,166,130,97,69,46,28,14,5,0,3,10,20,33,51,71,96,124,105,79,57,39,24,12,5,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-2,-9,-19,-34,-53,-76,-103,-134,-132,-101,-74,-51,-32,-18,-8,-2,0,0,0,-4,-10,-19,-31,-46,-64,-85,-100,-77,-58,-44,-36,-33,-36,-44,-58,-76,-87,-68,-55,-47,-46,-49,-59,-73,-94,-101,-81,-67,-59,-58,-63,-74,-92,-116,-93,-64,-33,0,34,71,109,153,188,168,159,163,179,208,248,209,158,118,88,65,51,46,48,42,31,19,7,-7,-21,-35,-51,-67,-67,-52,-42,-38,-38,-44,-54,-69,-90,-97,-79,-66,-60,-63,-73,-92,-123,-153,-158,-175,-193,-201,-223,-258,-227,-199,-183,-149,-72,5,84,157,213,281,363,376,331,304,295,224,155,98,54,23,-2,-22,-38,-53,-51,-46,-44,-45,-48,-55,-54,-40,-29,-18,-8,-1,3,2,0,0,0]},"sj":{"m0":0,"step":0.25,"off":[31,3,0,-10,-29,-43,-53,-49,-13,27,68,109,105,108,117,132,137,119,107,99,90,33,-31,-93,-146,-132,-99,-14,132,290,392,490,481,361,241,110,-49,-207,-365,-432,-497,-516,-504,-520,-528,-574,-573,-436,-263,-96,71,240,413,503,576,561,475,410,291,156,34,-77,-180,-270,-247,-228,-213,-154,-105,-66,-37,-19,-9,-3,-6,-18,-38,-65,-86,-94,-87,-65,74,253,456,682,722,705,743,746,526,312,103,-102,-305,-511,-722,-808,-620,-462,-347,-278,-254,-268,-274,-220,-197,-205,-245,-323,-444,-603,-748,-607,-474,-348,-175,80,334,589,725,609,524,473,376,346,382,465,538,562,497,320,141,-43,-234,-390,-554,-617,-692,-807,-661,-513,-337,-163,-8,76,124,157,125,92,62,37,20,9,3,-1,-4,-10,-18,-29,-41,-57,-74,-79,-62,-53,-52,-58,-72,-94,-118,-142,-132,-64,7,82,159,239,249,196,146,101,64,36,16,4,0,0,0,0,0,0,0,0,0,0,-1,-6,-16,-31,-50,-74,-103,-137,-162,-126,-94,-66,-44,-26,-12,-4,0,0,0,0,0,0,0,0,0,0,0,0,1,5,14,28,45,67,93,123,146,113,84,60,39,23,18,26,47,81,125,179,241,313,278,211,153,104,64,34,14,6,13,29,51,79,113,153,199,188,143,104,72,45,25,10,2,0,0,0,0,0,0,0,0,-5,-14,-27,-45,-66,-92,-122,-155,-136,-132,-146,-181,-236,-312,-407,-417,-374,-349,-279,-185,-99,-21,55,133,219,317,366,377,414,476,437,369,325,307,237,162,98,45,2,-37,-81,-129,-182,-208,-200,-203,-216,-241,-184,-132,-78,-38,-9,10,14,1,0,0]},"gc":{"m0":0,"step":0.25,"off":[-31,-60,-53,-20,33,103,184,275,295,232,183,150,133,131,144,172,206,160,119,85,56,33,16,5,0,0,0,0,0,0,0,0,0,0,0,0,0,-3,-9,-17,-28,-45,-68,-97,-124,-127,-142,-170,-214,-212,-225,-253,-293,-251,-212,-143,-52,41,141,249,308,365,384,356,342,253,161,77,0,-70,-131,-180,-185,-115,-37,94,232,318,407,387,351,311,201,93,-13,-117,-223,-330,-405,-386,-378,-316,-228,-155,-97,-55,-27,-11,-2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,32,71,127,198,287,391,513,502,390,296,221,164,126,104,66,44,32,12,-16,-55,-103,-166,-245,-345,-463,-458,-423,-417,-440,-425,-366,-335,-311,-195,-45,96,227,364,523,702,560,219,32,182,424,596,707,836,713,524,243,-51,-382,-717,-1085,-1016,-862,-777,-708,-538,-434,-358,-188,-4,199,423,674,952,1249,1009,693,397,123,-128,-354,-365,-352,-318,-295,-215,-122,-43,29,96,116,138,169,210,266,339,303,271,256,254,215,152,99,55,20,-12,-46,-96,-163,-252,-310,-363,-431,-509,-539,-304,-75,144,186,221,240,184,117,42,-28,-93,-152,-203,-200,-202,-214,-194,-141,-98,-63,-38,-21,-9,-2,0,0,0,0,-1,-6,-15,-28,-45,-66,-93,-129,-160,-146,-141,-150,-176,-221,-256,-260,-290,-347,-427,-454,-424,-414,-346,-213,-81,52,187,317,395,480,498,383,263,107,-45,-189,-259,-318,-370,-308,-163,-23,94,127,121,71,0,-93,-202,-324,-457,-484,-533,-532,-447,-387,-332,-231,-152,-95,-54,-28,-14,-4,0,0,0,0,0,0,-7,-21,-43,-72,-109,-154,-206,-266,-218,-160,-100,-32,44,127,218,317,408,483,441,332,237,155,84,25,-29,-78,-124,-175,-210,-218,-232,-248,-172,-97,-21,55,130,205,236,270,257,192,137,92,56,30,14,4,0,0,0,0,0,-2,-23,-66,-136,-236,-368,-530,-722,-908,-777,-646,-444,-251,-62,125,307,485,661,658,653,529,333,152,41,-53,-134,-170,-191,-212,-227,-230,-254,-257,-236,-232,-244,-270,-205,-148,-102,-66,-40,-20,-7,0,0,0,0,3,10,19,32,49,70,101,140,134,136,151,185,236,265,257,271,313,378,399,352,333,350,401,414,379,383,426,505,540,462,412,389,287,175,72,-20,-75,-130,-202,-297,-421,-511,-614,-767,-919,-883,-884,-687,-525,-370,-189,-25,122,187,225,257,300,353,295,211,132,58,-15,-96,-191,-301,-427,-494,-524,-595,-708,-704,-628,-600,-620,-521,-408,-328,-279,-202,-120,-47,15,72,131,195,254,226,209,205,204,169,147,138,137,106,90,91,108,140,185,243,313,299,228,169,137,133,160,220,311,430,571,666,514,383,280,207,165,153,170,214,279,268,205,150,106,74,54,46,50,65,87,111,82,52,22,-10,-44,-83,-125,-171,-153,-138,-127,-118,-76,-13,60,142,231,274,343,437,559,553,515,516,556,545,432,346,285,248,148,14,-124,-267,-390,-491,-622,-787,-705,-636,-604,-602,-467,-297,-76,178,389,599,655,717,745,762,784,713,599,339,50,-314,-675,-834,-763,-702,-561,-407,-264,-115,12,122,224,288,301,319,261,168,79,-6,-86,-167,-251,-285,-251,-231,-225,-235,-260,-223,-162,-115,-79,-50,-27,-11,-4,-7,-15,-27,-42,-60,-76,-86,-60,-1,63,139,219,288,187,161,147,152,180,181,160,161,181,194,166,133,103,74,44,-32,-119,-217,-324,-390,-354,-334,-329,-340,-250,-174,-115,-73,-44,-22,-8,0,2,13,34,65,106,158,219,290,343,265,197,139,92,54,26,8,0,0,0,0,0,6,16,32,53,77,104,133,157,92,25,-44,-112,-145,-180,-218,-189,-139,-98,-64,-38,-21,-8,-1,0,6,26,59,107,169,246,337,442,457,355,273,208,161,133,122,129,100,70,40,10,-20,-50,-80,-111,-128,-123,-136,-168,-217,-284,-369,-480,-437,-366,-321,-304,-316,-356,-425,-350,-276,-217,-166,-121,-83,-8,96,207,333,429,457,509,584,460,359,285,238,219,190,148,129,133,155,197,258,278,275,289,319,354,265,190,130,84,50,25,6,-5,-10,-17,-26,-36,-44,-39,8,75,157,256,367,487,525,392,180,-34,-244,-452,-585,-674,-580,-288,8,158,172,169,149,120,84,53,40,46,61,67,52,36,20,4,-13,-30,-47,-65,-82,-64,-49,-42,-42,-50,-65,-87,-118,-155,-175,-135,-100,-70,-47,-32,-28,-34,-50,-75,-104,-138,-169,-131,-100,-79,-70,-71,-83,-107,-141,-185,-202,-167,-145,-112,-90,-80,-84,-108,-81,10,93]}};
 'use strict';
 /* =====================================================================
    RIVER RUN — DATA
@@ -230,7 +233,7 @@ function gcSection(o){
 
 const RIVERS=[
 /* ---------------- RUBY-HORSETHIEF ---------------- */
-{id:'ruby',name:'Ruby-Horsethief Canyons',river:'Colorado River, Colorado → Utah',stretch:'Loma → Westwater Ranger Station',start:0,end:25,scale:'intl',width:560,speed:85,
+{id:'ruby',path:'ruby',name:'Ruby-Horsethief Canyons',river:'Colorado River, Colorado → Utah',stretch:'Loma → Westwater Ranger Station',start:0,end:25,scale:'intl',width:560,speed:85,
  cfs:[3000,8000,20000,30000],wallH:360,sky:'#a8cfe8',wind:.6,days:3,
  season:'Late October: calm, low fall flows, cool nights and gold cottonwoods. Afternoon upstream wind is common.',
  blurb:'A gentle float through red sandstone, with arches, side hikes and the black rock of Black Rocks.',
@@ -254,7 +257,7 @@ const RIVERS=[
  bridges:[{n:'Railroad bridge',m:17.25,rail:true}]},
 
 /* ---------------- SAN JUAN UPPER ---------------- */
-{id:'sj-upper',name:'San Juan: Sand Island → Mexican Hat',river:'San Juan River, Utah',stretch:'Sand Island (Bluff) → Mexican Hat',start:0,end:27,scale:'intl',width:470,speed:105,
+{id:'sj-upper',path:'sj',name:'San Juan: Sand Island → Mexican Hat',river:'San Juan River, Utah',stretch:'Sand Island (Bluff) → Mexican Hat',start:0,end:27,scale:'intl',width:470,speed:105,
  cfs:[700,3000,8000,15000],wallH:420,sky:'#a9cfe9',wind:.4,days:3,
  season:'Late October: low, clear fall flows, quiet camps and cold nights. Navajo Nation on river left.',
  blurb:'Ancestral Puebloan ruins, rock art and Comb Ridge. River House Ruin is a highlight.',
@@ -282,7 +285,7 @@ const RIVERS=[
  towns:[{n:'Mexican Hat',m:26.4,side:1}]},
 
 /* ---------------- GRAY CANYON ---------------- */
-{id:'gray',name:'Gray Canyon',river:'Green River, Utah',stretch:'Nefertiti → Swasey\'s',start:75,end:84.3,scale:'intl',width:520,speed:95,
+{id:'gray',path:'deso',name:'Gray Canyon',river:'Green River, Utah',stretch:'Nefertiti → Swasey\'s',start:75,end:84.3,scale:'intl',width:520,speed:95,
  cfs:[2000,6000,15000,25000],wallH:380,sky:'#a8cfe8',wind:.4,days:2,
  season:'Late October: low fall flows, cold nights, very few other boats.',
  blurb:'The last miles of Desolation-Gray. A good place to learn.',
@@ -298,7 +301,7 @@ const RIVERS=[
  camps:[{n:'Price River Camp',m:78.9,side:1},{n:'Butler Camp',m:79.8,side:-1},{n:'Swasey\'s Rock Camp',m:82.2,side:-1}]},
 
 /* ---------------- DESOLATION + GRAY ---------------- */
-{id:'deso',name:'Desolation & Gray Canyons',river:'Green River, Utah',stretch:'Sand Wash → Swasey\'s (84 miles)',start:0,end:84.3,scale:'intl',width:520,speed:100,
+{id:'deso',path:'deso',name:'Desolation & Gray Canyons',river:'Green River, Utah',stretch:'Sand Wash → Swasey\'s (84 miles)',start:0,end:84.3,scale:'intl',width:520,speed:100,
  cfs:[2000,7000,18000,30000],wallH:620,sky:'#a6cdea',wind:.5,days:5,
  season:'Late October: low flows, cold nights, golden cottonwoods. You may have the canyon to yourself.',
  blurb:'A deep, wild canyon with Fremont rock art, old ranches and dozens of fun rapids.',
@@ -345,7 +348,7 @@ const RIVERS=[
   {n:'Mile 48 Camp',m:48,side:-1},{n:'Cow Swim Camp',m:55.8,side:-1},{n:'Wire Fence Beach',m:59.25,side:1},{n:'Range Creek Camp',m:64.8,side:1},{n:'Rattlesnake Camp',m:73.3,side:-1},{n:'Price River Camp',m:78.9,side:1}]},
 
 /* ---------------- SAN JUAN LOWER ---------------- */
-{id:'sj-lower',name:'San Juan: Mexican Hat → Clay Hills',river:'San Juan River, Utah',stretch:'Mexican Hat → Clay Hills (57 miles)',start:27,end:83.5,scale:'intl',width:440,speed:110,
+{id:'sj-lower',path:'sj',name:'San Juan: Mexican Hat → Clay Hills',river:'San Juan River, Utah',stretch:'Mexican Hat → Clay Hills (57 miles)',start:27,end:83.5,scale:'intl',width:440,speed:110,
  cfs:[700,3000,8000,15000],wallH:900,sky:'#a9cfe9',wind:.4,days:5,
  season:'Late October: low flows make Government Rapid rocky. Deep, quiet canyon.',
  blurb:'The Goosenecks, the Honaker Trail and Government Rapid in a 1,000-foot-deep canyon.',
@@ -364,7 +367,7 @@ const RIVERS=[
  camps:[{n:'Upper Honaker Camp',m:44.4,side:1},{n:'Johns Canyon Camp',m:52.3,side:1},{n:'Ross Rapid Camp',m:55.4,side:-1},{n:'Slickhorn Camp',m:66.9,side:1},{n:'Oljeto Camp',m:72,side:-1},{n:'Mile 78 Camp',m:78,side:1}]},
 
 /* ---------------- WESTWATER ---------------- */
-{id:'westwater',name:'Westwater Canyon',river:'Colorado River, Utah',stretch:'Westwater Ranger Station → Cisco',start:0,end:17,scale:'intl',width:430,speed:115,
+{id:'westwater',path:'westwater',name:'Westwater Canyon',river:'Colorado River, Utah',stretch:'Westwater Ranger Station → Cisco',start:0,end:17,scale:'intl',width:430,speed:115,
  cfs:[2000,7000,20000,30000],wallH:430,sky:'#a8cfe8',days:2,
  season:'Late October: low water makes Skull and the Room of Doom very technical.',
  blurb:'Black-rock gorge near the Utah line. Short and punchy.',
@@ -388,7 +391,7 @@ const RIVERS=[
  camps:[{n:'Miner\'s Cabin Camp',m:3.3,side:1},{n:'Little Hole Camp',m:10,side:-1},{n:'Mile 13 Camp',m:13,side:1}]},
 
 /* ---------------- CATARACT ---------------- */
-{id:'cataract',name:'Cataract Canyon',river:'Colorado River, Utah',stretch:'Confluence → Big Drop 3',start:0,end:16.2,scale:'intl',width:600,speed:115,
+{id:'cataract',path:'cataract',name:'Cataract Canyon',river:'Colorado River, Utah',stretch:'Confluence → Big Drop 3',start:0,end:16.2,scale:'intl',width:600,speed:115,
  cfs:[5000,20000,50000,70000],wallH:650,sky:'#a6cdea',days:2,
  season:'Late October: low water. The Big Drops are rocky and technical.',
  blurb:'Big desert whitewater below the Green and Colorado confluence. Ends with the Big Drops.',
@@ -409,16 +412,16 @@ const RIVERS=[
  camps:[{n:'Spanish Bottom',m:3.9,side:1},{n:'Brown Betty Camp',m:4.7,side:-1},{n:'Mile 8 Camp',m:8,side:1},{n:'Mile 11 Camp',m:11,side:-1},{n:'Big Drop Camp',m:13.6,side:1}]},
 
 /* ---------------- GRAND CANYON SECTIONS (real exits) ---------------- */
-gcSection({id:'gc-upper',name:'Grand Canyon: Lees Ferry → Phantom Ranch',stretch:'Mile 0 → 88 (upper half)',start:0,end:88.7,days:6,
+gcSection({id:'gc-upper',path:'gc',name:'Grand Canyon: Lees Ferry → Phantom Ranch',stretch:'Mile 0 → 88 (upper half)',start:0,end:88.7,days:6,
  blurb:'Marble Canyon, the Roaring Twenties, Redwall Cavern, Nankoweap, the Little Colorado and the Inner Gorge. Exit at Phantom Ranch.',
  takeout:{n:'Boat Beach, Phantom Ranch',m:88.05,side:1,how:'Passengers hike out the Bright Angel Trail: about 10 miles and 4,400 feet up.',miss:'Next exit: Whitmore helipad, 99 miles and about 40 rapids away, including Horn Creek, Granite, Hermit, Crystal and Lava Falls.'}}),
-gcSection({id:'gc-lower',name:'Grand Canyon: Phantom Ranch → Whitmore',stretch:'Mile 88 → 187 (big-water half)',start:87.8,end:188.1,days:7,
+gcSection({id:'gc-lower',path:'gc',name:'Grand Canyon: Phantom Ranch → Whitmore',stretch:'Mile 88 → 187 (big-water half)',start:87.8,end:188.1,days:7,
  blurb:'Horn Creek, Granite, Hermit, Crystal, the Gems, Elves Chasm, Bedrock, Deer Creek, Havasu and Lava Falls. Exit by helicopter.',
  takeout:{n:'Whitmore Helipad',m:187.5,side:-1,how:'A helicopter flies you to Bar 10 Ranch on the rim.',miss:'Next exit: Diamond Creek, 38 miles down. The helicopter leaves without you.'}}),
-gcSection({id:'gc-bottom',name:'Grand Canyon: Whitmore → Diamond Creek',stretch:'Mile 187 → 226 (Lower Gorge)',start:187.2,end:226.5,days:3,
+gcSection({id:'gc-bottom',path:'gc',name:'Grand Canyon: Whitmore → Diamond Creek',stretch:'Mile 187 → 226 (Lower Gorge)',start:187.2,end:226.5,days:3,
  blurb:'Black lava walls give way to the Lower Granite Gorge. 205 Mile, 209 Mile, Pumpkin Spring and the Diamond Creek take-out.',
  takeout:{n:'Diamond Creek take-out',m:225.8,side:-1,how:'A rough Hualapai road climbs to Peach Springs.',miss:'Below Diamond Creek: Diamond Creek Rapid, then the Lower Gorge and 50 miles to Lake Mead. The Hualapai road is the only way out.'}}),
-gcSection({id:'gc-full',name:'Grand Canyon: the full trip',stretch:'Lees Ferry → Diamond Creek (226 miles)',start:0,end:226.5,days:14,expOnly:true,
+gcSection({id:'gc-full',path:'gc',name:'Grand Canyon: the full trip',stretch:'Lees Ferry → Diamond Creek (226 miles)',start:0,end:226.5,days:14,expOnly:true,
  blurb:'The whole river: 226 miles, about 70 rapids, two weeks. Expedition only. Your progress saves at every camp.',
  takeout:{n:'Diamond Creek take-out',m:225.8,side:-1,how:'A rough Hualapai road climbs to Peach Springs.',miss:'Below Diamond Creek: Diamond Creek Rapid, then the Lower Gorge and 50 miles to Lake Mead. The Hualapai road is the only way out.'}}),
 

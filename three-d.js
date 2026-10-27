@@ -167,7 +167,7 @@ function buildChunk(ch){
   for(const r of rapidsIn){for(let i=0;i<70;i++){const y=r.y0-60+(rng()-.5)*320,off=rng()*rng()*170-6,c0=W.cx(y),hw=W.hw(y);
     bl.push([c0+r.fan*(hw+off),y,Math.max(0,off*.1),(4+rng()*20)*(1-off/260),rng()<.5?pal.rock:pal.wall2]);}}
   const dummy=new THREE.Object3D();
-  const inst=(geo,mat,list,fn)=>{if(!list.length)return null;const m=new THREE.InstancedMesh(geo,mat,list.length);list.forEach((e,i)=>{fn(e,i);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);m.setColorAt(i,tc);});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;grp.add(m);return m;};
+  const inst=(geo,mat,list,fn)=>{if(!list.length)return null;const m=new THREE.InstancedMesh(geo,mat,list.length);m.frustumCulled=false;list.forEach((e,i)=>{fn(e,i);dummy.updateMatrix();m.setMatrixAt(i,dummy.matrix);m.setColorAt(i,tc);});m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;grp.add(m);return m;};
   inst(new THREE.IcosahedronGeometry(1,0),M3(0xffffff,{flatShading:true,roughness:1}),bl,(e,i)=>{dummy.position.set(TX(e[0]),e[2],TZ(e[1]));dummy.scale.set(e[3],e[3]*(.55+hash3(i,1,2)*.4),e[3]*(.8+hash3(i,3,4)*.4));dummy.rotation.set(hash3(i,5,6)*3,hash3(i,7,8)*3,0);tc.set(e[4]).multiplyScalar(.75+hash3(i,9,1)*.45);});
   inst(new THREE.IcosahedronGeometry(1,1),M3(0xffffff,{flatShading:true,roughness:1}),veg,(e,i)=>{dummy.position.set(TX(e[0]),e[2],TZ(e[1]));dummy.scale.set(e[3],e[3]*.7,e[3]);dummy.rotation.set(0,0,0);tc.set(e[4]).multiplyScalar(.7+hash3(i,2,9)*.5);});
   inst(new THREE.ConeGeometry(1,1,6),M3(0xffffff,{flatShading:true,roughness:1}),trees,(e,i)=>{const h=e[3]*4;dummy.position.set(TX(e[0]),e[2]+h/2,TZ(e[1]));dummy.scale.set(e[3],h,e[3]);dummy.rotation.set(0,0,0);tc.set(e[4]<.5?'#1f4d22':'#2f6b2f').multiplyScalar(.8+e[4]*.4);});
@@ -203,7 +203,7 @@ function buildChunk(ch){
   // crowds (animated)
   const crowd=[];for(const cr of W.crowds){if(cr.y<y0||cr.y>y1)continue;for(const m of cr.mem){const yy=cr.y+m.dy,off=m.off,x=W.cx(yy)+cr.side*(W.hw(yy)+off);crowd.push({x:TX(x),y:profH(off)+(cr.onRock?0:0),z:TZ(yy),col:m.col,ph:m.ph});}}
   if(crowd.length){const m=new THREE.InstancedMesh(new THREE.CylinderGeometry(4,5,16,6),M3(0xffffff),crowd.length),hm=new THREE.InstancedMesh(new THREE.SphereGeometry(4,8,6),M3(0xf1c27d),crowd.length);
-    crowd.forEach((p,i)=>{tc.set(p.col);m.setColorAt(i,tc);});if(m.instanceColor)m.instanceColor.needsUpdate=true;grp.add(m);grp.add(hm);ch.crowd={m,hm,list:crowd};}
+    m.frustumCulled=false;hm.frustumCulled=false;crowd.forEach((p,i)=>{tc.set(p.col);m.setColorAt(i,tc);});if(m.instanceColor)m.instanceColor.needsUpdate=true;grp.add(m);grp.add(hm);ch.crowd={m,hm,list:crowd};}
   // churning foam on holes, big waves and boils
   const fx=[],fy=[],fph=[],fa=[];
   for(let i=lowerIdx(F,y0);i<F.length&&F[i].y<y1;i++){const f=F[i];
@@ -215,6 +215,7 @@ function buildChunk(ch){
     ch.foam={geo:fg,n:fn,x:fx,y:fy,ph:fph,a:fa,base:fx.slice(0,fn).map((_,j)=>staticWater(fx[j],fy[j])[0])};}
   for(const g of W.bars){if(g.y<y0||g.y>y1)continue;const hw=W.hw(g.y),x=W.cx(g.y)+g.side*(hw-hw*g.w*.6),bar=new THREE.Mesh(new THREE.CircleGeometry(1,20),M3(new THREE.Color(pal.sand).lerp(new THREE.Color('#8a8a80'),.35),{roughness:1}));bar.rotation.x=-Math.PI/2;bar.scale.set(hw*g.w*.6,g.len*.5,1);bar.position.set(TX(x),2.5,TZ(g.y));grp.add(bar);}
   build3DExtras(ch,grp,TX,TZ,profH,y0,y1,pal);
+  if(typeof SCN!=='undefined')try{SCN.build3D(ch,grp,TX,TZ,profH,y0,y1,pal);}catch(e){console.warn('scenery 3D',e);}
   ch.sky=G.lvlKey==='flood'?'#9aa7b0':R.sky;
   return grp;
 }
@@ -315,7 +316,7 @@ function render3D(dt){
     ch.crowd.m.instanceMatrix.needsUpdate=true;ch.crowd.hm.instanceMatrix.needsUpdate=true;}
   R3.flowTex.offset.y-=dt*G.river.speed*G.lvl.speed*(1+W.rint(b.y)*.9)/260;if(R3.nrmTex){R3.nrmTex.offset.y-=dt*G.river.speed*G.lvl.speed/150*.6;R3.nrmTex.offset.x=Math.sin(t*.2)*.03;}
   if(ch.fall)for(const f of ch.fall)f.material.opacity=.6+.15*Math.sin(t*9);
-  updFauna3D(TX,TZ,t);updFleet3D(TX,TZ,t);
+  updFauna3D(TX,TZ,t);updFleet3D(TX,TZ,t);if(typeof SCN!=='undefined')SCN.render3D(TX,TZ,t);
   if(G.wp){R3.wpRing.visible=true;R3.wpRing.position.set(TX(G.wp.x),heightAt(G.wp.x,G.wp.y,t)+3,TZ(G.wp.y));R3.wpRing.scale.setScalar(1+.15*Math.sin(t*6));R3.wpRing.material.color.set(G.wpBack?0xffb347:0x5fd38d);}else R3.wpRing.visible=false;
   const sp=R3.pg.attributes.position.array;let n=0;
   for(const p of G.parts){if(n>=R3.MAXP)break;sp[n*3]=TX(p.x);sp[n*3+1]=(p.base||0)+4+p.z;sp[n*3+2]=TZ(p.y);n++;}

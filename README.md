@@ -4,7 +4,7 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (6 code files plus this README):
+Put all of these files in the root of your GitHub repository (7 code files plus this README):
 
 | File | What it does |
 |---|---|
@@ -14,6 +14,7 @@ Put all of these files in the root of your GitHub repository (6 code files plus 
 | `trip.js` | Overnight and Expedition modes: camps, crew, supplies, boats in your trip, events, camp scene, save and continue. |
 | `scenes.js` | Animated painted scenes for history pages, stops, take-outs and dangers. |
 | `three-d.js` | The 3D view near big rapids, landmarks and bridges. |
+| `scenery.js` | Real scenery for each river: black schist bluffs and cliff jumpers at Black Rocks, cottonwoods, tamarisk, the railroad and train, debris fans, boulders, hoodoos, ledges and other camps. |
 
 ## Controls
 
@@ -96,6 +97,14 @@ Facts are short summaries for a game. Some miles are approximate.
 ## Grand Canyon data
 
 `rivers.js` has one shared Grand Canyon list (`GC_RAPIDS`, `GC_POIS`, `GC_CAMPS`, `GC_ZONES`) from Lees Ferry to Diamond Creek. The sections and the full expedition are cut from it with `gcSection()`. Change a rapid once and every section gets the change.
+
+## Real river bends
+
+`rivers.js` starts with `RIVER_PATHS`. It holds the real bends of each river (not Gauley), made from the Natural Earth 1:10m river centerlines (public domain). Bends smaller than about 2 miles are not in that data. The game puts a limit on how steep a bend can be, so the river stays playable.
+
+## Scenery
+
+`scenery.js` has `SCN_LAND` (what grows or stands along each river, by mile) and `SCN_JUMPS` (cliff-jumping bluffs). Add `slow:900` to a stretch to give it more length on screen.
 
 ## Take-outs and stops
 
