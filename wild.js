@@ -39,9 +39,9 @@ const WILD={
     if(f.st==='sub'&&f.tm<=0){f.st='up';f.tm=2.5+Math.random()*2.5;splash(f.x,f.y,5,.3);if(d<900)this.call('grunt');}
     else if(f.st==='up'&&f.tm<=0){f.st='sub';f.tm=3+Math.random()*3;}
     if(!G.hippoWarned&&d<700){G.hippoWarned=1;toast('🦛 Hippos ahead! Keep away from them. Hug the shallow bank.','#ffd36b',2.6);coach('hippo');}
-    if(f.st!=='charge'&&!f.charged&&d<(f.st==='up'?135:95)&&G.state==='run'&&G.inv<=0){f.st='charge';f.charged=1;f.tm=.9;f.cx=b.x;f.cy=b.y;this.call('grunt');G.shake=6;}
+    if(f.st!=='charge'&&!f.charged&&d<(f.st==='up'?115:75)&&G.state==='run'&&G.inv<=0){f.st='charge';f.charged=1;f.tm=.9;f.cx=b.x;f.cy=b.y;this.call('grunt');G.shake=6;}
     if(f.st==='charge'){const dx=b.x-f.x,dy=b.y-f.y,l=Math.hypot(dx,dy)||1;f.x+=dx/l*190*dt;f.y+=dy/l*190*dt;
-      if(l<G.craft.r+18){f.st='sub';f.tm=6;hit(12,'Hippo charge!',f.x,f.y,160);G.b.vx+=dx/l*-120;G.b.av+=(Math.random()-.5)*3;maybeMOB(.4);G.hippoHits=(G.hippoHits||0)+1;toast('🦛 A hippo slams the boat!','#ff8a7a',1.8);}
+      if(l<G.craft.r+18){f.st='sub';f.tm=6;hit(12,'Hippo charge!',f.x,f.y,160);G.b.vx+=dx/l*-120;G.b.av+=(Math.random()-.5)*3;maybeMOB(.25);G.hippoHits=(G.hippoHits||0)+1;toast('🦛 A hippo slams the boat!','#ff8a7a',1.8);}
       else if(f.tm<=0){f.st='sub';f.tm=5;}}
     if(!f.passed&&f.y<b.y-160){f.passed=1;if(!f.charged&&f.minD>170&&f.minD<520){G.score+=30;pop('🦛 Safe pass +30','#bfe9c8');}}
     return true;},

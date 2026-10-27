@@ -162,11 +162,12 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 .crewin small{color:var(--mute)}
 
 /* ---- retro pixel art, world map, vitals ---- */
-canvas.wmap,#titleCv,.endart{display:block;width:100%;image-rendering:pixelated;border:3px solid #000;box-shadow:0 0 0 3px #f2d494,0 8px 24px rgba(0,0,0,.4);border-radius:4px;background:#14305e;touch-action:none;cursor:pointer}
+#titleCv,.endart{display:block;width:100%;image-rendering:pixelated;border:3px solid #000;box-shadow:0 0 0 3px #f2d494,0 8px 24px rgba(0,0,0,.4);border-radius:4px;background:#14305e}
+canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.18);box-shadow:0 10px 30px rgba(0,0,0,.45);background:#0c2c4e;touch-action:none;cursor:pointer}
 #titleCv{height:clamp(150px,30vw,230px);margin:4px 0 10px}
 .endart{height:clamp(150px,34vw,240px);margin:0 auto 6px;max-width:640px}
 .retrocap{max-width:640px;margin:0 auto 10px;background:#fff;color:#000;border:3px solid #000;font-family:"VT323",monospace;font-size:24px;text-align:center;padding:4px 8px}
-.mapbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 4px;font-family:"VT323",monospace;font-size:20px;color:#f2d494}
+.mapbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 4px;font-size:14px;color:var(--mute)}
 .mapbar .ghost{margin:0}
 #contChips{margin:8px 0 4px}
 #vitals{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(8px + env(safe-area-inset-bottom));display:none;gap:6px;z-index:11;pointer-events:none;background:rgba(0,0,0,.55);border:2px solid #000;box-shadow:0 0 0 2px #f2d494;padding:4px 8px;border-radius:4px}
@@ -302,6 +303,7 @@ canvas.wmap,#titleCv,.endart{display:block;width:100%;image-rendering:pixelated;
 <script src="pixel.js"></script>
 <script src="wild.js"></script>
 <script src="map.js"></script>
+<script src="map-hd.js" defer></script>
 <script src="three-d.js"></script>
 <script src="scenery.js"></script>
 <script>boot();</script>

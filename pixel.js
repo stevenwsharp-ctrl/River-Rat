@@ -13,12 +13,13 @@ const PIX={
   near(r,g,b){const key=((r>>3)<<10)|((g>>3)<<5)|(b>>3);let i=this.cache[key];if(i>=0)return i;let best=0,bd=1e9;
     for(let k=0;k<this.rgb.length;k++){const p=this.rgb[k],dr=r-p[0],dg=g-p[1],db=b-p[2],d=dr*dr*.3+dg*dg*.59+db*db*.11;if(d<bd){bd=d;best=k;}}this.cache[key]=best;return best;},
   BAYER:[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5],
-  dither(ctx,w,h){this.init();const im=ctx.getImageData(0,0,w,h),d=im.data,P=this.rgb,B=this.BAYER;
-    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const o=(y*w+x)*4,th=(B[(y&3)*4+(x&3)]/16-.47)*34;
-      const r=clamp(d[o]+th,0,255)|0,g=clamp(d[o+1]+th,0,255)|0,b=clamp(d[o+2]+th,0,255)|0,p=P[this.near(r,g,b)];d[o]=p[0];d[o+1]=p[1];d[o+2]=p[2];d[o+3]=255;}
+  /* 256-color look (8 levels of red and green, 4 of blue, like old VGA games) with a light, fine dither */
+  dither(ctx,w,h){const im=ctx.getImageData(0,0,w,h),d=im.data,B=this.BAYER,q=(v,n)=>{const s=255/(n-1);return Math.round(clamp(v,0,255)/s)*s;};
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){const o=(y*w+x)*4,th=(B[(y&3)*4+(x&3)]/16-.47);
+      d[o]=q(d[o]+th*9,14);d[o+1]=q(d[o+1]+th*9,14);d[o+2]=q(d[o+2]+th*11,12);d[o+3]=255;}
     ctx.putImageData(im,0,0);},
   /* pixelate a canvas in place: shrink, dither, scale back up with hard edges */
-  retroize(cv,lowW){if(!cv.width)return;const lw=lowW||clamp(Math.round(cv.width/(devicePixelRatio>1.5?6:4)),120,300),lh=Math.max(1,Math.round(cv.height*lw/cv.width));
+  retroize(cv,lowW){if(!cv.width)return;const lw=lowW||clamp(Math.round(cv.width/(devicePixelRatio>1.5?4.5:3)),160,420),lh=Math.max(1,Math.round(cv.height*lw/cv.width));
     if(!this.small)this.small=document.createElement('canvas');const s=this.small;if(s.width!==lw||s.height!==lh){s.width=lw;s.height=lh;}
     const sc=s.getContext('2d',{willReadFrequently:true});sc.imageSmoothingEnabled=true;sc.drawImage(cv,0,0,lw,lh);this.dither(sc,lw,lh);
     const c=cv.getContext('2d');c.save();c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=false;c.drawImage(s,0,0,cv.width,cv.height);c.restore();},
@@ -55,9 +56,10 @@ const PIX={
   title(cv,t){const d=Math.min(2,devicePixelRatio||1),w=cv.clientWidth||600,h=cv.clientHeight||200;if(cv.width!==Math.round(w*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d);}
     const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);this.land(c,w,h,t,{});
     const rx=w*.62+Math.sin(t*.7)*w*.05,ry=h*.74+Math.sin(t*2)*3;this.raft(c,rx,ry,Math.min(1.3,h/170));this.rat(c,rx-6,ry-10,Math.min(1,h/210),t);
-    c.font=`bold ${Math.round(h*.24)}px "Press Start 2P", "VT323", monospace`;c.textAlign='left';c.fillStyle='#14305e';c.fillText('RIVER RAT',w*.045+3,h*.33+3);c.fillStyle='#f8f07a';c.fillText('RIVER RAT',w*.045,h*.33);
-    c.font=`${Math.round(h*.09)}px "Press Start 2P", "VT323", monospace`;c.fillStyle='#ffffff';c.fillText('Read the water. Don\'t swim.',w*.05,h*.47);
-    if(this.on())this.retroize(cv,clamp(Math.round(w/3),140,300));},
+    if(this.on())this.retroize(cv,clamp(Math.round(w/2.2),180,420));
+    c.setTransform(d,0,0,d,0,0);c.textAlign='left';c.lineJoin='round';
+    const ts=Math.round(Math.min(h*.2,w*.075));c.font=`${ts}px "Press Start 2P", monospace`;c.lineWidth=Math.max(4,ts*.22);c.strokeStyle='#10203a';c.strokeText('RIVER RAT',w*.045,h*.3);c.fillStyle='#ffe25a';c.fillText('RIVER RAT',w*.045,h*.3);
+    const ss=Math.round(Math.min(h*.075,w*.028));c.font=`${ss}px "Press Start 2P", monospace`;c.lineWidth=Math.max(3,ss*.4);c.strokeStyle='#10203a';c.strokeText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.2);c.fillStyle='#ffffff';c.fillText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.2);},
   /* pictures for the end screen */
   endArt(cv,kind,t,R){const d=Math.min(2,devicePixelRatio||1),w=cv.clientWidth||520,h=cv.clientHeight||220;if(cv.width!==Math.round(w*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d);}
     const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);const pal=R&&R.pal;this.land(c,w,h,t,{pal,night:kind==='hypo'||kind==='evac'});const sc=Math.min(1.2,h/180);
@@ -70,7 +72,7 @@ const PIX={
     else if(kind==='hypo'){this.rat(c,w*.5,h*.66,sc,t);c.fillStyle='rgba(166,214,248,.85)';c.fillRect(w*.42,h*.62,w*.16,h*.14);c.fillStyle='#fff';for(let i=0;i<30;i++)c.fillRect((i*53+t*20)%w,(i*29+t*40)%h,2,2);}
     else if(kind==='evac'){const hx=w*(.3+.4*((t*.05)%1));c.fillStyle='#b8322a';c.beginPath();c.ellipse(hx,h*.25,30,12,0,0,7);c.fill();c.fillRect(hx-55,h*.25-3,30,5);c.strokeStyle='#000';c.lineWidth=3;const r=Math.cos(t*30)*40;c.beginPath();c.moveTo(hx-r,h*.25-16);c.lineTo(hx+r,h*.25-16);c.stroke();this.raft(c,w*.4,h*.8,sc);this.rat(c,w*.4,h*.7,sc*.8,t);}
     else{this.raft(c,w*.4,h*.8,sc);this.rat(c,w*.4,h*.7,sc*.8,t);}
-    if(this.on())this.retroize(cv,clamp(Math.round(w/3),140,300));},
+    if(this.on())this.retroize(cv,clamp(Math.round(w/2.2),180,420));},
   endKind(ok,reason){if(ok)return 'win';const r=(reason||'').toLowerCase();if(/hull|popped|cracked|stove/.test(r))return 'hull';if(/swim/.test(r))return 'swims';if(/miss/.test(r))return 'missed';if(/evac|leader/.test(r))return 'evac';if(/cold|hypo/.test(r))return 'hypo';return 'flip';},
   endCaption(kind,reason){return {win:'You made it to the take-out!',hull:'Here lies your boat. It was a good boat.',swims:'Too many swims. The crew walks out.',missed:'You floated right past the take-out.',evac:'The helicopter comes for your trip leader.',hypo:'Too cold. Time to get warm.',flip:'Trip over.'}[kind]||'Trip over.';}
 };

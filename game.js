@@ -592,7 +592,7 @@ function update(dt){
   if(G.flush>0){G.flush-=dt;const B=G.river.speed*G.lvl.speed;f.vy=Math.max(f.vy,B*1.2);f.vx+=(W.cx(b.y)-b.x)*.8;b.y+=40*dt;}
   // hull: water drag along and across the hull (long hulls track straight)
   if(arcade){/* ARCADE: you choose where to go; the boat keeps itself straight. The current still pushes and spins you. */
-    const A=c.arc,U=G.upg;let latV=aS*A.lat*U.hand;const fwdV=(aT>0?aT*A.fwd:aT<0?aT*A.back:A.cruise)*U.pow*pm+(G.boostT>0?150:0);
+    const A=c.arc,U=G.upg;let latV=aS*A.lat*U.hand;const fwdV=(aT>0?aT*A.fwd:aT<0?aT*A.back:0)*U.pow*pm+(G.boostT>0?150:0);
     /* smart steering: slide away from rocks just ahead (like kart-racer steering assist) */
     {const F2=W.feats;for(let i=lowerIdx(F2,b.y-20);i<F2.length&&F2[i].y<b.y+90+Math.max(0,b.vy)*.7;i++){const r2=F2[i];if(r2.t!=='rock'||r2.shore)continue;const ddx=b.x-r2.x,cl=r2.r+c.r+28;if(Math.abs(ddx)<cl){const k2=(1-Math.abs(ddx)/cl)*(1-(r2.y-b.y)/(100+Math.max(0,b.vy)*.8));latV+=(ddx>=0?1:-1)*240*Math.max(0,k2)*U.hand;}}}
     const L=landTarget();if(L&&Math.abs(b.y-L.y)<300){const o=b.x-W.cx(b.y),shore=W.hw(b.y)-o*L.side;if(o*L.side>0&&shore<170&&(aS*L.side>.2||G.wp)){latV+=L.side*110;b.vy-=(b.vy-f.vy*.3)*Math.min(1,1.2*dt);}}
@@ -600,7 +600,7 @@ function update(dt){
     b.vx+=(f.vx+latV-b.vx)*Math.min(1,k*dt);b.vy+=(f.vy+fwdV-b.vy)*Math.min(1,k*.75*dt);
     const tol=c.tol*Math.PI/180,want=Math.atan(W.dcx(b.y))+clamp(Math.atan2(latV,Math.max(90,fwdV+f.vy*.6))*.7,-tol*.55,tol*.55);
     b.av+=(angDiff(want,b.h)*A.assist*U.hand-b.av*A.damp)*dt;
-    const o=Math.abs(aT)>.05?aT:A.cruise>0?.3:0;G.oa.L.o=clamp(o+aS*.7,-1,1);G.oa.R.o=G.oarLost?0:clamp(o-aS*.7,-1,1);G.kp.o=o;G.kp.turn=aS;}
+    const o=Math.abs(aT)>.05?aT:G.boostT>0?1:0;G.oa.L.o=clamp(o+aS*.7,-1,1);G.oa.R.o=G.oarLost?0:clamp(o-aS*.7,-1,1);G.kp.o=o;G.kp.turn=aS;}
   else{
   const kh=G.curHole&&G.flush<=0?1.6:1;
   const rx=b.vx-f.vx,ry=b.vy-f.vy;let al=rx*dx+ry*dy,la=rx*px+ry*py;
