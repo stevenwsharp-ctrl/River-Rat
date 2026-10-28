@@ -282,6 +282,7 @@ function buildMenu(){
   const dg=$('d3');dg.innerHTML='';
   [['big','Big rapids','Class III+ / GC 5+, landmarks, bridges'],['all','Every rapid','more 3D, more paddling'],['off','Off','2D only']].forEach(([k,n,dd])=>{const b=document.createElement('button');b.className='pill'+(sel.d3===k?' sel':'');b.innerHTML=`${n}<small>${HAS3D()||k==='off'?dd:'needs internet (three.js)'}</small>`;b.onclick=()=>{sel.d3=k;buildMenu();};dg.appendChild(b);});
   if($('retroBtn')){$('retroBtn').textContent=sel.retro!==false?'🕹 Retro art: ON':'🕹 Retro art: OFF';$('retroBtn').classList.toggle('sel',sel.retro!==false);}
+  if($('frogBtn')){const fh=store.get('riverrat_frog_hi',[])[0];$('frogBtn').textContent=`🐸 Rat Crossing · Frogger mode${fh?` · best ${fh.score}`:''}`;}
   $('factsBtn').textContent=sel.facts?'📜 History & facts: ON':'📜 History & facts: OFF';
   $('tipsBtn').textContent=sel.tips?'💡 Tips: ON':'💡 Tips: OFF';$('tipsBtn').classList.toggle('sel',sel.tips);
   const sv=TRIP.loadSave(),cb=$('contBtn');if(sv){const RR=RIVERS.find(r=>r.id===sv.river);cb.style.display='inline-block';cb.textContent=`▶ Continue expedition: ${RR?RR.name:sv.river} · Day ${sv.day}/${sv.days}`;}else cb.style.display='none';
@@ -291,6 +292,7 @@ function buildMenu(){
 }
 $('pname').addEventListener('input',e=>{sel.name=(e.target.value||'Boatman').slice(0,18);saveSel();});
 $('factsBtn').onclick=()=>{sel.facts=!sel.facts;buildMenu();};
+if($('frogBtn'))$('frogBtn').onclick=()=>{saveSel();if(typeof initTex2==='function')try{initTex2();}catch(e){}FROG.open();};
 if($('retroBtn'))$('retroBtn').onclick=()=>{sel.retro=!sel.retro;if(typeof MAP!=='undefined')MAP.dirty=true;buildMenu();};
 $('tipsBtn').onclick=()=>{sel.tips=!sel.tips;if(sel.tips)store.set('riverrun_coach',[]);buildMenu();};
 $('contBtn').onclick=()=>TRIP.continueSave();

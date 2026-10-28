@@ -193,6 +193,18 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 #campScreen.retro #campPanel button{font-family:"VT323",monospace;font-size:22px;border-radius:0;border:3px solid #000}
 #campScreen.retro #campPanel .vitals .vt,#campScreen.retro #campPanel .cm{background:#eee;color:#000}
 #sceneCv,#campCv{image-rendering:pixelated}
+
+/* ---- Rat Crossing (Frogger mode) ---- */
+#frog{position:fixed;inset:0;display:none;z-index:40;background:#0b1f26;touch-action:none}
+#frogCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#frogPause{position:absolute;top:max(10px,env(safe-area-inset-top));right:10px;z-index:2;width:40px;height:40px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:rgba(0,0,0,.5);color:#fff;font-size:16px}
+#frogPad{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom));display:none;grid-template-columns:repeat(3,58px);grid-template-rows:repeat(2,58px);gap:6px;z-index:2}
+#frogPad button{border-radius:14px;border:1px solid rgba(255,255,255,.3);background:rgba(0,0,0,.45);color:#fff;font-size:24px;touch-action:none}
+#frogPad [data-h=u]{grid-column:2;grid-row:1}#frogPad [data-h=l]{grid-column:1;grid-row:2}#frogPad [data-h=d]{grid-column:2;grid-row:2}#frogPad [data-h=r]{grid-column:3;grid-row:2}
+#frogPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(94vw,560px);max-height:88vh;overflow-y:auto;display:none;z-index:3;background:rgba(10,20,28,.94);border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#frogPanel h1{margin:4px 0 8px}#frogPanel p{line-height:1.45}
+.frogscore{display:flex;flex-direction:column;gap:3px;background:rgba(0,0,0,.3);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}.frogscore b{color:var(--acc)}
+#frogBtn{display:block;width:100%;max-width:none;margin:4px 0 14px;background:linear-gradient(90deg,#2e9a58,#3fae4a);color:#fff}
 </style>
 </head>
 <body>
@@ -224,10 +236,12 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
   <div class="grp col"><button class="cbtn boost" data-k="boost">⚡<small>BOOST</small></button><button class="cbtn" data-k="push">▲<small>PUSH</small></button><button class="cbtn" data-k="pull">▼<small>PULL</small></button></div>
 </div>
 
+<div id="frog"><canvas id="frogCv"></canvas><button id="frogPause" title="Pause">❚❚</button><div id="frogPad"><button data-h="u">▲</button><button data-h="l">◀</button><button data-h="d">▼</button><button data-h="r">▶</button></div><div id="frogPanel"></div></div>
 <div id="menu" class="screen"><div class="wrap">
   <h1 style="position:absolute;left:-9999px">River Rat</h1>
   <canvas id="titleCv" aria-label="River Rat title picture"></canvas>
   <div class="sub">Read the water. Square up to the waves. Do not swim.</div>
+  <button class="big" id="frogBtn">🐸 Rat Crossing · Frogger mode</button>
   <div class="topbar">
     <input id="pname" maxlength="18" placeholder="Your name" aria-label="Your name for leaderboards">
     <button class="ghost" id="lbBtn">🏆 Leaderboards</button>
@@ -303,6 +317,7 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 <script src="pixel.js"></script>
 <script src="wild.js"></script>
 <script src="map.js"></script>
+<script src="frogger.js"></script>
 <script src="map-hd.js" defer></script>
 <script src="three-d.js"></script>
 <script src="scenery.js"></script>

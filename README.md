@@ -6,7 +6,7 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (11 code files plus this README):
+Put all of these files in the root of your GitHub repository (13 code files plus this README):
 
 | File | What it does |
 |---|---|
@@ -21,6 +21,8 @@ Put all of these files in the root of your GitHub repository (11 code files plus
 | `wild.js` | Crocodiles, hippos, elephants, monkeys and more. Hippo charges, crocs near swimmers, cold water and hypothermia, quick rescues, people falling in, portages and waterfalls. |
 | `pixel.js` | Retro pixel art: the River Rat mascot, the title picture, scene cards, end pictures. |
 | `map.js` | The world map on the main menu (Natural Earth 1:110m land, public domain). |
+| `map-hd.js` | More detailed coastlines and rivers for the world map when you zoom in. |
+| `frogger.js` | Rat Crossing: the Frogger mode. |
 
 ## Controls
 
@@ -103,6 +105,12 @@ Facts are short summaries for a game. Some miles are approximate.
 ## Grand Canyon data
 
 `rivers.js` has one shared Grand Canyon list (`GC_RAPIDS`, `GC_POIS`, `GC_CAMPS`, `GC_ZONES`) from Lees Ferry to Diamond Creek. The sections and the full expedition are cut from it with `gcSection()`. Change a rapid once and every section gets the change.
+
+## Rat Crossing (Frogger mode)
+
+Tap **🐸 Rat Crossing** on the menu. Hop your boat downstream one lane at a time. Logs, animals and boats float across the river. White arrows mark fast current that pushes you sideways. Park in the 5 eddies at the take-out to clear a level. Each level is a new river (Green, Grand Canyon, Zambezi, Pacuare, Ganges, Franklin, ice river) and a little faster.
+
+Scoring: +10 each new lane · +50 per park plus 10 per second left · combo ×1.5 to ×3 for parks in a row · +200 swimmer rescue · +200 golden trout · +50 dry bag · +10 flower garland · +5 close call · +1000 × level for a level clear · extra boat every 10,000.
 
 ## Expedition vitals
 
