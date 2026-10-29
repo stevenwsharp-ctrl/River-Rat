@@ -10,9 +10,9 @@
 const SCN_LAND={
   ruby:[{k:'tamarisk',m0:0,m1:25,d:.55},{k:'cotton',m0:5.4,m1:6.4,d:1},{k:'cotton',m0:7.5,m1:8.4,d:.8},{k:'cotton',m0:0,m1:25,d:.18},
     {k:'rail',m0:4.6,m1:25,side:1},{k:'schist',m0:15.9,m1:17.3,slow:900}],
-  westwater:[{k:'tamarisk',m0:0,m1:17,d:.6},{k:'rail',m0:0,m1:2.2,side:1},{k:'schist',m0:4.2,m1:11.6,d:.6},{k:'boulders',m0:5,m1:11}],
+  westwater:[{k:'tamarisk',m0:0,m1:17.6,d:.6},{k:'rail',m0:0,m1:2.2,side:1},{k:'schist',m0:8.4,m1:12.6,d:.6},{k:'boulders',m0:8.5,m1:11.3}],
   deso:[{k:'tamarisk',m0:0,m1:84.3,d:.8},{k:'cotton',m0:0,m1:84.3,d:.35},{k:'hoodoo',m0:10,m1:62}],
-  sj:[{k:'tamarisk',m0:0,m1:83.5,d:.9},{k:'cotton',m0:0,m1:12,d:.45},{k:'ledges',m0:27,m1:83.5},{k:'ledges',m0:0,m1:14}],
+  sj:[{k:'slow',m0:30.5,m1:41,slow:900},{k:'tamarisk',m0:0,m1:83.5,d:.9},{k:'cotton',m0:0,m1:12,d:.45},{k:'ledges',m0:27,m1:83.5},{k:'ledges',m0:0,m1:14}],
   cataract:[{k:'tamarisk',m0:0,m1:16.2,d:.7},{k:'boulders',m0:12.3,m1:16.2},{k:'boulders',m0:0,m1:12,d:.3}],
   gc:[{k:'tamarisk',m0:0,m1:226.5,d:.75},{k:'fans',m0:0,m1:226.5},{k:'schist',m0:77,m1:117.5,d:.5},{k:'schist',m0:127,m1:140,d:.5},{k:'schist',m0:213,m1:226.5,d:.5}],
   gauley:[{k:'boulders',m0:0,m1:9.6,d:1.4}],

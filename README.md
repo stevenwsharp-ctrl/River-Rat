@@ -6,12 +6,13 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (15 code files, `sw.js`, `manifest.webmanifest`, 3 icon PNGs and this README):
+Put all of these files in the root of your GitHub repository (16 code files, `sw.js`, `manifest.webmanifest`, 3 icon PNGs and this README):
 
 | File | What it does |
 |---|---|
 | `index.html` | The page, the screens and the styles. |
 | `rivers.js` | River data: rapids, camps, history markers, bridges, towns, crowds and boats. |
+| `river-geo.js` | The real course of each river (its heading every 0.05 mile) and its real side canyons, from the USGS National Hydrography Dataset. |
 | `world-rivers.js` | Rivers on every continent: Zambezi, Mana Pools, Futaleufú, Pacuare, Soča, Sun Kosi, Ganges, Franklin, Kaituna and the Onyx (Antarctica). |
 | `game.js` | The core game: physics, 2D view, controls, leaderboards, history pages. |
 | `trip.js` | Overnight and Expedition modes: camps, crew, supplies, boats in your trip, events, camp scene, save and continue. |
@@ -127,7 +128,7 @@ Facts are short summaries for a game. Some miles are approximate.
 
 ## Updating the game
 
-When you change a file, raise the version number `1.8.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
+When you change a file, raise the version number `1.9.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
 
 ## Rat Crossing (Frogger mode)
 
@@ -143,9 +144,21 @@ In Expedition mode a bar shows six vitals: 🚽 Groover, 🩹 First Aid, 🛶 Pa
 
 Each river has a water temperature (`waterF`). A swimmer gets colder every second. In very cold water (Onyx, Soča, Grand Canyon) hypothermia comes fast. A rescue in under 5 seconds is a Quick Rescue bonus.
 
-## Real river bends
+## Real river bends and side canyons
 
-`rivers.js` starts with `RIVER_PATHS`. It holds the real bends of each river (not Gauley), made from the Natural Earth 1:10m river centerlines (public domain). Bends smaller than about 2 miles are not in that data. The game puts a limit on how steep a bend can be, so the river stays playable.
+`river-geo.js` holds the real course of Ruby-Horsethief, Westwater, Desolation-Gray, Cataract, the San Juan and the Grand Canyon. The data is the USGS National Hydrography Dataset main stem (public domain), with guide miles pinned to it (prepared centerlines from the open river-trip planner [eddy](https://github.com/briancarlcain/eddy)). It records the heading of the river every 0.05 mile.
+
+The game builds each river along a straight line. To show the real bends, it draws the world into a buffer, then lays it on the screen in thin bands. Each band turns to the real heading of the river at that point, and the camera turns with the river ahead of you. Goosenecks, S-bends and sharp corners look like the real river. The current runs fast on the outside of a bend, and eddies form on the inside.
+
+On flat water these rivers get at least 600 pixels of screen per mile, so the bends have room. A bend cannot be tighter than about 360 pixels in radius. The Goosenecks of the San Juan get more length (`slow` in `scenery.js`).
+
+`SIDE_CANYONS` lists the real side canyons: tributaries from the USGS data, plus named canyons from river guides. Each one has a mile, a side (-1 left, 1 right), a name and a size. The game draws a gap in the canyon wall, a sandy floor, a creek or a dry wash, and a debris fan at the mouth.
+
+The world rivers have no USGS data. Their bends are made by the game.
+
+## Westwater Canyon
+
+Westwater uses the miles from the ranger station (BLM and American Whitewater). Skull Rapid is at mile 10.43. Run center to left of Skull Hole. Below it, the Rock of Shock on the right wall feeds the Room of Doom, a circling eddy on river right. The eddy traps your boat and turns it. Boost out at the top of the eddy. In high water the eddy is stronger.
 
 ## Scenery
 
