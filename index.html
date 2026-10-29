@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="description" content="River Rat: run real whitewater rivers around the world. Rapids, expeditions, wildlife, history and Rat Crossing.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233f7f6f'/%3E%3Cpath d='M8 40 Q20 30 32 40 T56 40' stroke='white' stroke-width='5' fill='none'/%3E%3Crect x='24' y='14' width='16' height='26' rx='8' fill='%23f0b429'/%3E%3C/svg%3E">
 <style>
 :root{--bg:#0b1f26;--panel:#12303a;--ink:#eaf4f2;--mute:#9fbcbc;--acc:#ffb347;--ok:#5fd38d;--bad:#ff6b5b;--line:#24505c}
@@ -226,6 +226,30 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 details.opts{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:10px 0}details.opts summary{cursor:pointer;font-weight:700;color:var(--acc)}
 .dailybox{background:rgba(58,123,213,.15);border:1px solid #3a7bd5;border-radius:12px;padding:10px 12px;margin:10px auto;max-width:520px;text-align:center}.dgrid{font-size:26px;letter-spacing:2px;margin:6px 0;word-break:break-all}
 .stamp{color:#ffe25a;font-weight:700}
+
+/* ---- one look: Fredoka for titles and big buttons ---- */
+h1,h2,.big,.tile,#playBtn,.runtile b,.rstars,#lbWrap h1,#endWrap h1,#scenePanel h1,#campPanel h1{font-family:"Fredoka",system-ui,sans-serif}
+h1{font-weight:700;letter-spacing:.2px}h2{font-weight:600}
+.home{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.home #titleCv{height:clamp(150px,34vw,210px);margin:0;border:0;box-shadow:0 10px 30px rgba(0,0,0,.45);border-radius:18px;image-rendering:auto}
+#playBtn{font-size:30px;font-weight:700;padding:16px 12px;margin:0;max-width:none;width:100%;border-radius:18px;background:linear-gradient(180deg,#ffc061,#ff8a3a);box-shadow:0 6px 0 #b8541c,0 12px 24px rgba(0,0,0,.35)}
+#playBtn small,.tile small{display:block;font-family:system-ui,sans-serif;font-size:13px;font-weight:600;opacity:.85;margin-top:2px}
+.homegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:0;border-radius:16px;padding:14px 10px;font-size:19px;font-weight:600;color:#fff;cursor:pointer;text-align:center;box-shadow:0 4px 0 rgba(0,0,0,.35)}
+#runsBtn{background:linear-gradient(180deg,#2e9a8a,#1f7a6c)}#dailyBtn{background:linear-gradient(180deg,#4a8be0,#2f6fc4)}#frogBtn{background:linear-gradient(180deg,#45b45a,#2e8a42);margin:0}#exploreBtn{background:linear-gradient(180deg,#8a6ad0,#6a4ab0)}
+.boatrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.boatchip{background:rgba(0,0,0,.25);border:2px solid var(--line);border-radius:14px;padding:6px 4px;color:var(--ink);cursor:pointer;font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center}
+.boatchip.sel{border-color:var(--acc);background:rgba(255,179,71,.12)}.boatchip canvas{width:44px;height:52px}
+.homelinks{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.homelinks .ghost{margin:0;font-size:14px;padding:8px 12px}
+#homeGoals .goals{margin:0}#homeGoals{font-size:13px}
+#homeCont{width:100%;margin:0}
+.freehead{display:flex;align-items:center;gap:12px}.freehead h1{margin:0}.freehead .ghost{margin:0}
+.rungrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:14px 0}
+.runtile{position:relative;text-align:left;border:2px solid var(--line);background:linear-gradient(180deg,rgba(46,154,138,.25),rgba(0,0,0,.2));border-radius:14px;padding:10px 10px 8px;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:118px}
+.runtile b{font-size:17px}.runtile small{color:var(--mute);font-size:12px}.runtile .rn{position:absolute;right:10px;top:8px;font-family:"Fredoka",sans-serif;font-weight:700;font-size:22px;opacity:.35}
+.runtile .rs{color:#ffd84a;font-size:18px;letter-spacing:2px;margin-top:auto}.runtile.lock{opacity:.45;cursor:default}.runtile.nexttile{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,179,71,.25)}
+.runend{text-align:center}.rstars{font-size:58px;letter-spacing:6px;line-height:1.1;margin:6px 0}.rstar{color:rgba(255,255,255,.15)}.rstar.on{color:#ffd84a;text-shadow:0 0 16px rgba(255,216,74,.6)}
+.runend .stats{grid-template-columns:repeat(4,1fr)}.runbtns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}.runbtns .big{max-width:none;margin:0;min-width:220px}.runbtns .ghost{margin:0}
 </style>
 </head>
 <body>
@@ -258,14 +282,25 @@ details.opts{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radi
 </div>
 
 <div id="frog"><canvas id="frogCv"></canvas><button id="frogPause" title="Pause">❚❚</button><div id="frogPad"><button data-h="u">▲</button><button data-h="l">◀</button><button data-h="d">▼</button><button data-h="r">▶</button></div><div id="frogPanel"></div></div>
-<div id="menu" class="screen"><div class="wrap">
+<div id="home" class="screen"><div class="wrap home">
   <h1 style="position:absolute;left:-9999px">River Rat</h1>
   <canvas id="titleCv" aria-label="River Rat title picture"></canvas>
-  <div class="hero">
-    <button class="big" id="playBtn">▶ PLAY</button>
-    <button class="big" id="dailyBtn">📅 Daily River</button>
-    <button class="big" id="frogBtn">🐸 Rat Crossing · Frogger mode</button>
+  <button class="big" id="playBtn">▶ PLAY</button>
+  <div class="homegrid">
+    <button class="tile" id="runsBtn">🗺 Runs</button>
+    <button class="tile" id="dailyBtn">📅 Daily River</button>
+    <button class="tile" id="frogBtn">🐸 Rat Crossing</button>
+    <button class="tile" id="exploreBtn">🌍 Free Run</button>
   </div>
+  <div class="boatrow" id="boatRow"></div>
+  <button class="run" id="homeCont" style="display:none"></button>
+  <div class="homelinks"><button class="ghost" id="hLb">🏆 Leaderboards</button><button class="ghost" id="hBadges">🏅 Badges</button><button class="ghost" id="hShop">🛠 Shop</button><button class="ghost" id="hSettings">⚙ Settings</button></div>
+  <div id="homeGoals"></div>
+</div></div>
+<div id="runsScreen" class="screen" style="display:none"><div class="wrap" id="runsWrap"></div></div>
+<div id="menu" class="screen" style="display:none"><div class="wrap">
+  <div class="freehead"><button class="ghost" id="homeBack">← Home</button><h1>Free Run</h1></div>
+  <div class="sub">Any river, any trip: day trips, overnights and full expeditions.</div>
   <div class="topbar">
     <input id="pname" maxlength="18" placeholder="Your name" aria-label="Your name for leaderboards">
     <button class="ghost" id="lbBtn">🏆 Leaderboards</button>
@@ -335,19 +370,20 @@ details.opts{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radi
 <div id="end" class="screen"><div class="wrap center" id="endWrap"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="rivers.js?v=1.7.0"></script>
-<script src="world-rivers.js?v=1.7.0"></script>
-<script src="game.js?v=1.7.0"></script>
-<script src="trip.js?v=1.7.0"></script>
-<script src="scenes.js?v=1.7.0"></script>
-<script src="pixel.js?v=1.7.0"></script>
-<script src="wild.js?v=1.7.0"></script>
-<script src="map.js?v=1.7.0"></script>
-<script src="frogger.js?v=1.7.0"></script>
-<script src="market.js?v=1.7.0"></script>
-<script src="map-hd.js?v=1.7.0" defer></script>
-<script src="three-d.js?v=1.7.0"></script>
-<script src="scenery.js?v=1.7.0"></script>
+<script src="rivers.js?v=1.8.0"></script>
+<script src="world-rivers.js?v=1.8.0"></script>
+<script src="game.js?v=1.8.0"></script>
+<script src="trip.js?v=1.8.0"></script>
+<script src="scenes.js?v=1.8.0"></script>
+<script src="pixel.js?v=1.8.0"></script>
+<script src="wild.js?v=1.8.0"></script>
+<script src="map.js?v=1.8.0"></script>
+<script src="frogger.js?v=1.8.0"></script>
+<script src="market.js?v=1.8.0"></script>
+<script src="runs.js?v=1.8.0"></script>
+<script src="map-hd.js?v=1.8.0" defer></script>
+<script src="three-d.js?v=1.8.0"></script>
+<script src="scenery.js?v=1.8.0"></script>
 <script>boot();
 window.APP_VERSION='1.7.0';
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>

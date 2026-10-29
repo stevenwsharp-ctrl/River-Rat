@@ -20,9 +20,9 @@ const FROG_KINDS={log:{w:2.6},tree:{w:3.2},ducks:{w:1.8},beaver:{w:1},deer:{w:1}
 const FROG={on:false,COLS:9,ROWS:13,SLOTS:[0,2,4,6,8],
   hi(){return store.get('riverrat_frog_hi',[]);},
   /* ---------- open / close ---------- */
-  open(){if(this.on)return;this.on=true;AU.init();AU.resume();$('menu').style.display='none';const s=$('frog');s.style.display='block';this.cv=$('frogCv');this.ctx=this.cv.getContext('2d');
+  open(){if(this.on)return;this.on=true;AU.init();AU.resume();$('menu').style.display='none';$('home').style.display='none';const s=$('frog');s.style.display='block';this.cv=$('frogCv');this.ctx=this.cv.getContext('2d');
     this.state='intro';this.resize();this.bindInput();this.showIntro();this.last=performance.now();const tick=ts=>{if(!this.on)return;const dt=Math.min(.05,(ts-this.last)/1000);this.last=ts;try{this.update(dt);this.draw();}catch(e){console.error(e);}requestAnimationFrame(tick);};requestAnimationFrame(tick);},
-  close(){this.on=false;$('frog').style.display='none';$('frogPanel').style.display='none';AU.roar(0);buildMenu();$('menu').style.display='block';},
+  close(){this.on=false;$('frog').style.display='none';$('frogPanel').style.display='none';AU.roar(0);buildMenu();showHome();},
   showIntro(){const hs=this.hi();this.panel(`<div class="pk">🐸 Frogger mode</div><h1>Rat Crossing</h1>
     <p>Hop your ${CRAFTS[sel.craft].name.toLowerCase()} <b>downstream</b> (up the screen), one lane at a time. Logs, animals and other boats float across the river. <b>Do not touch them.</b></p>
     <p>White arrows = fast current: it pushes you sideways. Rest on the sandbar. Park in an empty eddy at the take-out. Fill all 5 eddies to clear the level.</p>

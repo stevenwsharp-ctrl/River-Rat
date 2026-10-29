@@ -6,7 +6,7 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (14 code files, `sw.js`, `manifest.webmanifest`, 3 icon PNGs and this README):
+Put all of these files in the root of your GitHub repository (15 code files, `sw.js`, `manifest.webmanifest`, 3 icon PNGs and this README):
 
 | File | What it does |
 |---|---|
@@ -23,8 +23,25 @@ Put all of these files in the root of your GitHub repository (14 code files, `sw
 | `map.js` | The world map on the main menu (Natural Earth 1:110m land, public domain). |
 | `map-hd.js` | More detailed coastlines and rivers for the world map when you zoom in. |
 | `frogger.js` | Rat Crossing: the Frogger mode. |
-| `market.js` | Daily River (same river for everyone each day, with a share grid), river passport, share buttons, and ad hooks that work only on CrazyGames or Poki. |
+| `runs.js` | Runs: the core game. 17 short runs (1 to 2 minutes) of real rapids, from easy to hard, with a countdown, a finish line, 3 stars and unlocks. |
+| `market.js` | Daily River (the same short run, boat and water level for everyone each day, with a share grid), river passport, share buttons, and ad hooks that work only on CrazyGames or Poki. |
 | `sw.js`, `manifest.webmanifest`, `icon-*.png` | Install on a phone home screen, play offline, and always load the newest version. |
+
+## How to play
+
+The game opens on the Home screen. Tap **▶ PLAY** to start the next run. There is no long menu before you play.
+
+- **Runs:** 17 short runs on real rivers, from First Splash (Gray Canyon) to Lava Falls (Grand Canyon). Finish a run to unlock the next one.
+  - ★ Finish the run.
+  - ★★ Finish with no swims and the hull at 50% or more.
+  - ★★★ Also run every rapid clean.
+- **Daily River:** one short run for everyone each day. Share your result grid.
+- **Rat Crossing:** the Frogger mode.
+- **Free Run:** the full rivers, Overnight and Expedition modes, the world map and all settings.
+
+## Art style
+
+The game uses one style: smooth painted water and scenery, and the Fredoka font for titles and buttons. The retro pixel look is an option in Settings (off by default).
 
 ## Controls
 
@@ -110,11 +127,11 @@ Facts are short summaries for a game. Some miles are approximate.
 
 ## Updating the game
 
-When you change a file, raise the version number `1.7.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
+When you change a file, raise the version number `1.8.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
 
 ## Rat Crossing (Frogger mode)
 
-Tap **🐸 Rat Crossing** on the menu. Hop your boat downstream one lane at a time. Logs, animals and boats float across the river. White arrows mark fast current that pushes you sideways. Park in the 5 eddies at the take-out to clear a level. Each level is a new river (Green, Grand Canyon, Zambezi, Pacuare, Ganges, Franklin, ice river) and a little faster.
+Tap **🐸 Rat Crossing** on the Home screen. Hop your boat downstream one lane at a time. Logs, animals and boats float across the river. White arrows mark fast current that pushes you sideways. Park in the 5 eddies at the take-out to clear a level. Each level is a new river (Green, Grand Canyon, Zambezi, Pacuare, Ganges, Franklin, ice river) and a little faster.
 
 Scoring: +10 each new lane · +50 per park plus 10 per second left · combo ×1.5 to ×3 for parks in a row · +200 swimmer rescue · +200 golden trout · +50 dry bag · +10 flower garland · +5 close call · +1000 × level for a level clear · extra boat every 10,000.
 

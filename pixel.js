@@ -58,8 +58,8 @@ const PIX={
     const rx=w*.62+Math.sin(t*.7)*w*.05,ry=h*.74+Math.sin(t*2)*3;this.raft(c,rx,ry,Math.min(1.3,h/170));this.rat(c,rx-6,ry-10,Math.min(1,h/210),t);
     if(this.on())this.retroize(cv,clamp(Math.round(w/2.2),180,420));
     c.setTransform(d,0,0,d,0,0);c.textAlign='left';c.lineJoin='round';
-    const ts=Math.round(Math.min(h*.2,w*.075));c.font=`${ts}px "Press Start 2P", monospace`;c.lineWidth=Math.max(4,ts*.22);c.strokeStyle='#10203a';c.strokeText('RIVER RAT',w*.045,h*.3);c.fillStyle='#ffe25a';c.fillText('RIVER RAT',w*.045,h*.3);
-    const ss=Math.round(Math.min(h*.075,w*.028));c.font=`${ss}px "Press Start 2P", monospace`;c.lineWidth=Math.max(3,ss*.4);c.strokeStyle='#10203a';c.strokeText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.2);c.fillStyle='#ffffff';c.fillText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.2);},
+    const ts=Math.round(Math.min(h*.2,w*.075));c.font=this.on()?`${ts}px "Press Start 2P", monospace`:`700 ${Math.round(ts*1.3)}px "Fredoka", system-ui, sans-serif`;c.lineWidth=Math.max(4,ts*.22);c.strokeStyle='#10203a';c.strokeText('RIVER RAT',w*.045,h*.3);c.fillStyle='#ffe25a';c.fillText('RIVER RAT',w*.045,h*.3);
+    const ss=Math.round(Math.min(h*.075,w*.028));c.font=this.on()?`${ss}px "Press Start 2P", monospace`:`600 ${Math.round(ss*1.25)}px "Fredoka", system-ui, sans-serif`;c.lineWidth=Math.max(3,ss*.4);c.strokeStyle='#10203a';c.strokeText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.6);c.fillStyle='#ffffff';c.fillText('Read the water. Don\'t swim.',w*.05,h*.3+ss*2.6);},
   /* pictures for the end screen */
   endArt(cv,kind,t,R){const d=Math.min(2,devicePixelRatio||1),w=cv.clientWidth||520,h=cv.clientHeight||220;if(cv.width!==Math.round(w*d)){cv.width=Math.round(w*d);cv.height=Math.round(h*d);}
     const c=cv.getContext('2d');c.setTransform(d,0,0,d,0,0);const pal=R&&R.pal;this.land(c,w,h,t,{pal,night:kind==='hypo'||kind==='evac'});const sc=Math.min(1.2,h/180);

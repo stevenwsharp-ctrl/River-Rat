@@ -239,9 +239,11 @@ function drawCraft(c,key,ph,flipped,nPeople,kp,col){
 }
 
 /* ================= SETTINGS + MENU ================= */
-const sel=Object.assign({craft:'raft',river:'gray',level:'med',d3:'big',mode:'day',facts:true,tips:true,ctrl:'arcade',name:'Boatman',retro:true,cont:''},store.get('riverrun_settings',{}));
+const sel=Object.assign({craft:'raft',river:'gray',level:'med',d3:'big',mode:'day',facts:true,tips:true,ctrl:'arcade',name:'Boatman',retro:false,cont:'',sv:2},store.get('riverrun_settings',{}));
+if((sel.sv||0)<2){sel.retro=false;sel.sv=2;}
 if(!RIVERS.some(r=>r.id===sel.river))sel.river='gray';
-function saveSel(){store.set('riverrun_settings',sel);}
+function saveSel(){const o=Object.assign({},sel);if(/^run-/.test(o.river))o.river=RUN_LIST[+o.river.slice(4)-1].base;if(/^daily-/.test(o.river))o.river='gray';store.set('riverrun_settings',o);}
+function showHome(){for(const id of ['menu','runsScreen'])if($(id))$(id).style.display='none';buildHome();$('home').style.display='block';}
 function riverOK(R,mode){if(R.expOnly&&mode!=='expedition')return false;return !(R.dayOnly&&mode!=='day');}
 function buildMenu(){
   saveSel();
@@ -282,9 +284,6 @@ function buildMenu(){
   const dg=$('d3');dg.innerHTML='';
   [['big','Big rapids','Class III+ / GC 5+, landmarks, bridges'],['all','Every rapid','more 3D, more paddling'],['off','Off','2D only']].forEach(([k,n,dd])=>{const b=document.createElement('button');b.className='pill'+(sel.d3===k?' sel':'');b.innerHTML=`${n}<small>${HAS3D()||k==='off'?dd:'needs internet (three.js)'}</small>`;b.onclick=()=>{sel.d3=k;buildMenu();};dg.appendChild(b);});
   if($('retroBtn')){$('retroBtn').textContent=sel.retro!==false?'🕹 Retro art: ON':'🕹 Retro art: OFF';$('retroBtn').classList.toggle('sel',sel.retro!==false);}
-  if($('playBtn')){const R=RIVERS.find(r=>r.id===sel.river);$('playBtn').innerHTML=`▶ PLAY<small style="display:block;font-size:13px;font-weight:600;opacity:.85">${esc(R.name)} · ${CRAFTS[sel.craft].name} · ${MODES[riverOK(R,sel.mode)?sel.mode:'day'].name}</small>`;}
-  if($('dailyBtn')){const c=DAILY.cfg(),t=DAILY.today(),st=DAILY.streak();$('dailyBtn').innerHTML=t?`✅ Daily River #${t.n} done · ${t.score.toLocaleString()}<small style="display:block;font-size:13px;font-weight:600">${t.grid} · tap to share${st>1?` · 🔥${st}`:''}</small>`:`📅 Daily River #${c.n}<small style="display:block;font-size:13px;font-weight:600">${esc(c.R.name)} · ${CRAFTS[c.craft].name} · ${LEVELS[c.level].name} water${st>1?` · 🔥${st}-day streak`:''}</small>`;}
-  if($('frogBtn')){const fh=store.get('riverrat_frog_hi',[])[0];$('frogBtn').textContent=`🐸 Rat Crossing · Frogger mode${fh?` · best ${fh.score}`:''}`;}
   $('factsBtn').textContent=sel.facts?'📜 History & facts: ON':'📜 History & facts: OFF';
   $('tipsBtn').textContent=sel.tips?'💡 Tips: ON':'💡 Tips: OFF';$('tipsBtn').classList.toggle('sel',sel.tips);
   const sv=TRIP.loadSave(),cb=$('contBtn');if(sv){const RR=RIVERS.find(r=>r.id===sv.river);cb.style.display='inline-block';cb.textContent=`▶ Continue expedition: ${RR?RR.name:sv.river} · Day ${sv.day}/${sv.days}`;}else cb.style.display='none';
@@ -294,7 +293,23 @@ function buildMenu(){
 }
 $('pname').addEventListener('input',e=>{sel.name=(e.target.value||'Boatman').slice(0,18);saveSel();});
 $('factsBtn').onclick=()=>{sel.facts=!sel.facts;buildMenu();};
-if($('playBtn'))$('playBtn').onclick=()=>{const R=RIVERS.find(r=>r.id===sel.river);if(!riverOK(R,sel.mode))sel.mode=R.expOnly?'expedition':'day';startFlow();};
+if($('playBtn'))$('playBtn').onclick=()=>{$('home').style.display='none';RUNS.start(RUNS.next());};
+$('runsBtn').onclick=()=>RUNS.showList();
+$('exploreBtn').onclick=()=>{$('home').style.display='none';buildMenu();$('menu').style.display='block';$('menu').scrollTop=0;setTimeout(()=>{if(typeof MAP!=='undefined'&&MAP.cv){MAP.resize();MAP.dirty=true;}},50);};
+$('homeBack').onclick=()=>showHome();
+$('hLb').onclick=()=>showLeaderboards();$('hBadges').onclick=()=>showBadges();$('hShop').onclick=()=>showShop();
+$('hSettings').onclick=()=>{$('exploreBtn').onclick();const d=$('moreOpts');if(d)d.open=true;};
+$('homeCont').onclick=()=>{const c=$('contBtn');if(c)c.click();};
+function buildHome(){const i=RUNS.next(),S=RUN_LIST[i],st=RUNS.stars(i);
+  $('playBtn').innerHTML=`▶ PLAY<small>Run ${i+1}: ${esc(S.n)} · ${'★'.repeat(st)}${'☆'.repeat(3-st)}</small>`;
+  $('runsBtn').innerHTML=`🗺 Runs<small>${RUNS.total()} of ${RUN_LIST.length*3} ★</small>`;
+  const c=DAILY.cfg(),t=DAILY.today(),dst=DAILY.streak();$('dailyBtn').innerHTML=t?`✅ Daily #${t.n}<small>${t.score.toLocaleString()} · tap to share</small>`:`📅 Daily River<small>#${c.n} · ${esc(c.R.name.split(':')[0])}${dst>1?` · 🔥${dst}`:''}</small>`;
+  const fh=store.get('riverrat_frog_hi',[])[0];$('frogBtn').innerHTML=`🐸 Rat Crossing<small>${fh?`Best ${fh.score.toLocaleString()}`:'Frogger mode'}</small>`;
+  $('exploreBtn').innerHTML=`🌍 Free Run<small>${RIVERS.length} rivers · trips</small>`;
+  const br=$('boatRow');br.innerHTML='';for(const [k,c2] of Object.entries(CRAFTS)){const b=document.createElement('button');b.className='boatchip'+(sel.craft===k?' sel':'');const pc=document.createElement('canvas');pc.width=88;pc.height=104;
+    const x=pc.getContext('2d');x.scale(1,1);x.translate(44,52);x.scale(.9,.9);drawCraft(x,k,0,false,k==='raft'?3:k==='dory'?2:1);b.appendChild(pc);b.insertAdjacentHTML('beforeend',`<span>${c2.name.replace('Whitewater ','')}</span>`);b.onclick=()=>{sel.craft=k;saveSel();buildHome();};br.appendChild(b);}
+  const sv=TRIP.loadSave(),hc=$('homeCont');if(sv){const RR=RIVERS.find(r=>r.id===sv.river);hc.style.display='block';hc.textContent=`▶ Continue expedition: ${RR?RR.name:sv.river} · Day ${sv.day}/${sv.days}`;}else hc.style.display='none';
+  $('homeGoals').innerHTML=`<details><summary>🎯 Today's goals · 💰 ${store.get('riverrun_bucks',0)} River Bucks</summary>${missionsHtml(true)}</details>`;}
 if($('dailyBtn'))$('dailyBtn').onclick=()=>{const t=DAILY.today();if(t){SHARE.text(DAILY.text(t),$('dailyBtn'));return;}DAILY.start();};
 if($('frogBtn'))$('frogBtn').onclick=()=>{saveSel();if(typeof initTex2==='function')try{initTex2();}catch(e){}FROG.open();};
 if($('retroBtn'))$('retroBtn').onclick=()=>{sel.retro=!sel.retro;if(typeof MAP!=='undefined')MAP.dirty=true;buildMenu();};
@@ -337,8 +352,9 @@ function startFlow(){
 }
 function startGame(levelOverride){
   AU.init();AU.resume();if(typeof ADS!=='undefined')ADS.start();
-  const R=RIVERS.find(r=>r.id===sel.river),c=CRAFTS[sel.craft];
-  const lvKey=levelOverride||sel.level,lv=LEVELS[lvKey];
+  const R=(typeof RUNS!=='undefined'&&RUNS.cur&&sel.river===RUNS.cur.id)?RUNS.cur:RIVERS.find(r=>r.id===sel.river),c=CRAFTS[sel.craft];
+  if(!R.quick&&typeof RUNS!=='undefined')RUNS.cur=null;
+  const lvKey=R.quick?(R.lvlKey||'med'):(levelOverride||sel.level),lv=LEVELS[lvKey];
   const uu=(store.get('riverrun_upg',{})[sel.craft])||{},upg={hand:1+.12*(uu.hand||0),pow:1+.1*(uu.pow||0),hull:1+.2*(uu.hull||0)};
   const use3d=sel.d3!=='off'&&HAS3D();if(use3d){try{init3D();}catch(e){console.warn(e);}}
   if(G)cleanup3D();
@@ -417,7 +433,7 @@ function toast(txt,col,dur){const el=$('toast');el.textContent=txt;el.style.colo
 function showBanner(r){const el=$('banner');el.innerHTML=`<div class="bc">Scout · ${clsText(G.river,r.c)} · Mile ${r.m}</div><div class="bt">${r.n}</div><div class="bb">${r.beta}</div>`;el.style.display='block';G.bannerT=isTouch()?3.2:5;$('fact').style.display='none';$('coach').style.display='none';}
 function hideBanner(){$('banner').style.display='none';}
 $('banner').onclick=hideBanner;
-function showFact(p){if(G&&($('banner').style.display==='block'||G.W.rint(G.b.y)>.1||G.mode3d)){G.factPending=p;return;}G.factPending=null;const el=$('fact');el.innerHTML=`<div class="fk">${KIND_ICON[p.k]||'📍'} Mile ${p.m} · ${p.k==='town'?'Town & access':p.k==='geo'?'Geology':p.k==='nat'?'Nature':p.k==='art'?'Rock art':p.k==='fest'?'Festival':p.k==='warn'?'River note':'History'}</div><div class="ft">${esc(p.n)}</div><img class="fimg" src="${SCENE.thumb(sceneSpec(p.scene||'canyon',p.id))}" alt=""><div class="fb">${esc(p.txt)}</div>`;el.style.display='block';G.factT=isTouch()?5:8;AU.chime();}
+function showFact(p){if(G&&G.river.quick)return;if(G&&($('banner').style.display==='block'||G.W.rint(G.b.y)>.1||G.mode3d)){G.factPending=p;return;}G.factPending=null;const el=$('fact');el.innerHTML=`<div class="fk">${KIND_ICON[p.k]||'📍'} Mile ${p.m} · ${p.k==='town'?'Town & access':p.k==='geo'?'Geology':p.k==='nat'?'Nature':p.k==='art'?'Rock art':p.k==='fest'?'Festival':p.k==='warn'?'River note':'History'}</div><div class="ft">${esc(p.n)}</div><img class="fimg" src="${SCENE.thumb(sceneSpec(p.scene||'canyon',p.id))}" alt=""><div class="fb">${esc(p.txt)}</div>`;el.style.display='block';G.factT=isTouch()?5:8;AU.chime();}
 function hideFact(){$('fact').style.display='none';G&&(G.factT=0);}
 $('fact').onclick=hideFact;
 $('coach').onclick=()=>{$('coach').style.display='none';};
@@ -548,23 +564,27 @@ function endGame(ok,reason){
    <div class="rank">💰 +${earned} River Bucks (total ${store.get('riverrun_bucks',0)})</div>${missionsHtml()}
    ${extra.html||''}
    <button class="big" id="againBtn">Run it again</button><button class="ghost" id="endMenuBtn">Main menu & leaderboards</button>`;
-  {const ag=$('againBtn');let h='';if(ok){const nw=PASSPORT.stamp(G.river,sc);if(nw)h+=`<div class="rank stamp">🛂 New passport stamp: ${esc(G.river.name)} (${PASSPORT.count()}/${RIVERS.length} rivers)</div>`;}
+  if(G.river.quick&&G.daily){$('endWrap').innerHTML=`<div class="runend"><div class="pk">${esc(G.river.baseName)}</div><h1>Daily River #${G.daily}</h1><div class="sub">${ok?'You made it!':esc(reason)}</div><div class="stats"><div><b>${sc.toLocaleString()}</b>Score</div><div><b>${G.clean}/${total}</b>Clean rapids</div><div><b>${G.swims}</b>Swims</div><div><b>${fmtTime(G.t)}</b>Time</div></div>${DAILY.endHtml(ok)}<div class="runbtns"><button class="ghost" id="runHome">🏠 Home</button></div></div>`;DAILY.bindShare();$('runHome').onclick=()=>toMenu();}
+  else if(G.river.quick){$('endWrap').innerHTML=RUNS.endHtml(ok,reason,earned);}
+  else{const ag=$('againBtn');let h='';if(ok){const nw=PASSPORT.stamp(G.river,sc);if(nw)h+=`<div class="rank stamp">🛂 New passport stamp: ${esc(G.river.name)} (${PASSPORT.count()}/${RIVERS.length} rivers)</div>`;}
     if(G.daily)h+=DAILY.endHtml(ok);else h+=`<button class="ghost" id="shareRun">📤 Share this run</button>`;
     if(ADS.has()&&earned>0)h+=`<button class="ghost" id="adBucks">🎬 Watch an ad: double your River Bucks (+${earned})</button>`;
     const gr=$('endWrap').querySelector('.grade');(G.daily&&gr?gr:ag).insertAdjacentHTML(G.daily&&gr?'afterend':'beforebegin',h);DAILY.bindShare();const sr=$('shareRun');if(sr)sr.onclick=()=>SHARE.text(SHARE.runText(ok),sr);
     const ab=$('adBucks');if(ab)ab.onclick=()=>ADS.rewarded(w=>{if(w){addBucks(earned);ab.textContent=`✅ +${earned} River Bucks`;ab.disabled=true;}});}
   $('end').style.display='block';
-  {const cv=$('endArt'),t0=performance.now();const f=()=>{if($('end').style.display==='none'||!cv.isConnected)return;PIX.endArt(cv,ek,(performance.now()-t0)/1000,G&&G.river);setTimeout(()=>requestAnimationFrame(f),80);};f();}
-  $('againBtn').onclick=()=>startFlow();$('endMenuBtn').onclick=toMenu;
+  if(G.river.quick&&!G.daily)RUNS.bindEnd();
+  {const cv=$('endArt'),t0=performance.now();const f=()=>{if(!cv||$('end').style.display==='none'||!cv.isConnected)return;PIX.endArt(cv,ek,(performance.now()-t0)/1000,G&&G.river);setTimeout(()=>requestAnimationFrame(f),80);};f();}
+  if($('againBtn')){$('againBtn').onclick=()=>startFlow();$('endMenuBtn').onclick=toMenu;}
   setTimeout(()=>AU.suspend(),400);
 }
-function toMenu(){if(typeof DAILY!=='undefined')DAILY.restore();if(G)cleanup3D();G=null;SCENE.close();for(const id of ['hud','hbtns','boostBox','controls','pause','end','campScreen','outfit','lbScreen','toWarn','coach'])$(id).style.display='none';hideBanner();$('fact').style.display='none';buildMenu();$('menu').style.display='block';AU.roar(0);}
+function toMenu(){if(typeof DAILY!=='undefined')DAILY.restore();if(typeof RUNS!=='undefined'){RUNS.restoreRiver();RUNS.cur=null;}if(G)cleanup3D();G=null;SCENE.close();for(const id of ['hud','hbtns','boostBox','controls','pause','end','campScreen','outfit','lbScreen','toWarn','coach'])$(id).style.display='none';hideBanner();$('fact').style.display='none';buildMenu();showHome();AU.roar(0);}
 function togglePause(){if(!G||['done','camp','page','scene'].includes(G.state))return;
   if(G.state==='pause'){G.state=G.prevState;$('pause').style.display='none';AU.resume();}
   else{G.prevState=G.state;G.state='pause';$('pauseInfo').textContent=`${G.river.name} · Mile ${G.W.mileAt(G.b.y).toFixed(1)}${G.mode!=='day'?` · Day ${TRIP.day()}`:''}`;$('pFacts').textContent=sel.facts?'History & facts: ON':'History & facts: OFF';$('pCtrl').textContent='Controls: '+(sel.ctrl==='pro'?'Pro (real oars)':'Arcade (easy)');$('pause').style.display='block';AU.suspend();}}
 
 /* ================= UPDATE ================= */
 function update(dt){
+  if(G.cd>0){RUNS.countdown(dt);return;}
   const b=G.b,c=G.craft,W=G.W;
   G.t+=dt;G.inv=Math.max(0,G.inv-dt);G.shake*=Math.pow(.02,dt);b.bounce*=Math.pow(.05,dt);G.cheer=Math.max(0,G.cheer-dt);
   updParts(dt);
@@ -670,7 +690,7 @@ function update(dt){
   if(G.factQ.length&&G.factT<=0&&!G.mode3d){const p=G.factQ.shift();SEEN.add(p.id);showFact(p);}
   if(G.pageQ.length&&inCalm()&&G.t>1.2){const p=G.pageQ.shift();SEEN.add(p.id);openPage(p);return;}
   TRIP.update(dt);
-  updLandings();updFauna(dt);if(typeof SCN!=='undefined')SCN.update(dt);if(typeof WILD!=='undefined')WILD.update(dt);updRecord(dt);
+  updLandings();if(typeof RUNS!=='undefined')RUNS.check();if(G.state!=='run')return;updFauna(dt);if(typeof SCN!=='undefined')SCN.update(dt);if(typeof WILD!=='undefined')WILD.update(dt);updRecord(dt);
   if(G.state==='run'&&b.y>=W.len){if(W.takeout)missedTakeout();else endGame(true);}
 }
 function onWave(w,push){
@@ -1064,6 +1084,7 @@ function render(){
   for(const m of W.miles){if(m.y<yMin||m.y>yMax)continue;const x=W.cx(m.y)-W.hw(m.y)-22;ctx.fillStyle='#f4f1e8';ctx.fillRect(x-4,m.y-4,8,8);}
   for(const p of W.pois){if(p.y<yMin||p.y>yMax)continue;const x=W.cx(p.y)+p.side*(W.hw(p.y)+30);ctx.fillStyle='#6b4a2c';ctx.fillRect(x-2,p.y-14,4,14);ctx.fillStyle='#f2e3c4';ctx.fillRect(x-10,p.y-2,20,14);}
   render2DExtras(ctx,yMin,yMax,t);
+  if(R.quick)RUNS.draw2D(ctx,t);
   drawItems2D(ctx,yMin,yMax,t);
   TRIP.renderWorld(ctx,yMin,yMax);
   // ===== screen space =====
@@ -1079,6 +1100,7 @@ function render(){
   for(let i=lowerIdx(F,yMin);i<F.length&&F[i].y<yMax;i++){const f=F[i];if(!f.name)continue;const [x,y]=S(f.x,f.y);label(f.name,x,y-(f.ry||f.r||10)*sc-14,'#ffe0a0','rgba(0,0,0,.55)');}
   TRIP.renderLabels(ctx,S,yMin,yMax,label);
   render2DLabels(S,label,yMin,yMax);
+  if(R.quick)RUNS.label2D(S,label);
   if(W.scn)SCN.labels2D(S,label,W,yMin,yMax);
   const gh=ghostAt(G.t);if(gh&&gh.y>yMin&&gh.y<yMax){const [gx,gy]=S(gh.x,gh.y);ctx.save();ctx.globalAlpha=.35;ctx.translate(gx,gy);ctx.rotate(gh.h);ctx.scale(sc,sc);drawCraft(ctx,G.ck,0,false,G.craft.crew);ctx.restore();label('👻 best run',gx,gy-30,'#d8d8ff','rgba(30,30,60,.6)');}
   // boat
@@ -1201,4 +1223,4 @@ $('menuBtn').onclick=toMenu;
 $('pCtrl').onclick=()=>{sel.ctrl=sel.ctrl==='pro'?'arcade':'pro';saveSel();$('pCtrl').textContent='Controls: '+(sel.ctrl==='pro'?'Pro (real oars)':'Arcade (easy)');setCtrlLabels();};
 $('pFacts').onclick=()=>{sel.facts=!sel.facts;saveSel();$('pFacts').textContent=sel.facts?'History & facts: ON':'History & facts: OFF';};
 
-function boot(){resize();buildMenu();requestAnimationFrame(frame);}
+function boot(){resize();if(/^(run|daily)-/.test(sel.river))sel.river='gray';buildMenu();showHome();requestAnimationFrame(frame);}
