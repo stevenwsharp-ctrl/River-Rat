@@ -279,13 +279,14 @@ function flash(){const f=$('flash');f.style.transition='none';f.style.opacity=.8
 function enter3D(ch){
   R3.chunk=ch;R3.scene.add(ch.grp);R3.camInit=false;
   R3.scene.background=new THREE.Color(ch.sky);R3.scene.fog=new THREE.Fog(new THREE.Color(ch.sky).lerp(new THREE.Color(0x9a8f80),.25),1100,4200);
+  R3.pov=!!ch.major&&(sel.bigView||'pov')==='pov';if(R3.camera){R3.camera.fov=R3.pov?(VW<VH?88:72):(VW<VH?74:60);R3.camera.near=R3.pov?2:R3.camera.near;R3.camera.updateProjectionMatrix();}
   G.mode3d=true;G.slowT=.9;$('g3').style.display='block';$('tag3d').style.display='block';flash();AU.splash(.9);
   const P=sel.ctrl==='pro'?G.craft.pd:null,el=$('p3d');
   el.innerHTML=`<b>3D · ${P?P.name:'ROW!'}</b><span>${esc(ch.title)}<br>${P?(isTouch()?P.help:P.keys):'Same controls as 2D. Drag or tap to move. ⚡ boost through holes!'}</span>`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2600);
   setBtnLabels(true);$('stroke').style.display=P?'block':'none';G.rhythm=0;G.strokeReady=0;hideFact();
 }
 function exit3D(){
-  if(!R3||!G)return;const ch=R3.chunk;G.mode3d=false;if(ch){ch.done=true;disposeGrp(ch.grp);ch.grp=null;}R3.chunk=null;
+  if(!R3||!G)return;const ch=R3.chunk;G.mode3d=false;if(R3.pov){R3.pov=false;R3.camera.fov=VW<VH?74:60;R3.camera.updateProjectionMatrix();}if(ch){ch.done=true;disposeGrp(ch.grp);ch.grp=null;}R3.chunk=null;
   R3.swim.visible=false;R3.logs.forEach(l=>l.visible=false);R3.wpRing.visible=false;for(const k in R3.fauna)R3.fauna[k].forEach(m=>m.visible=false);R3.fleet.forEach(m=>m.visible=false);(R3.items||[]).forEach(m=>m.visible=false);
   $('g3').style.display='none';$('tag3d').style.display='none';$('p3d').style.display='none';$('stroke').style.display='none';setBtnLabels(false);
   if(G.state!=='done'&&G.state!=='camp')flash();
@@ -332,7 +333,7 @@ function render3D(dt){
   const airK=G.airT>0?1-G.airT/1.1:1,airY=G.airT>0?(airK<.35?airK/.35*25:25-(airK-.35)/.65*115):0;
   bm.position.set(TX(b.x),(hb+hs+hr+hlf)/4+(flipped?-4:1)+b.bounce*14+Math.max(-60,airY),TZ(b.y));
   bm.rotation.set(G.airT>0?pitch-Math.sin(airK*Math.PI)*.7:pitch,-b.h,flipped?Math.PI:roll,'YXZ');
-  P.people.forEach((p,i)=>p.visible=!(G.swim&&i===P.people.length-1));
+  P.people.forEach((p,i)=>p.visible=!R3.pov&&!(G.swim&&i===P.people.length-1));
   P.sw.visible=flipped;if(flipped){P.sw.rotation.set(0,0,-Math.PI);P.sw.children.forEach((s,i)=>{const a=t*1.3+i*2.1;s.position.set(Math.cos(a)*(c.len*.5+14),-6+Math.sin(t*3+i)*2,Math.sin(a*1.2)*(c.len*.45+12));s.visible=i<c.crew;});}
   const anim=a=>{const p=a.t;if(p>=1)return[0,0];const ph=a.back?1-p:p;return p<.55?[lerp(.65,-.65,ph/.55),-.14]:[lerp(-.65,.65,(p-.55)/.45),.18];};
   if(P.oars){if(c.pd&&G.mode3d&&sel.ctrl==='pro'){[G.sa.L,G.sa.R].forEach((a,i)=>{const [sy,sz]=anim(a),s=i===0?-1:1;P.oars[i].rotation.y=s*sy;P.oars[i].rotation.z=sz;});}
@@ -340,14 +341,17 @@ function render3D(dt){
     if(G.oarLost)P.oars[1].visible=false;else P.oars[1].visible=true;}
   if(P.pad&&sel.ctrl!=='pro'){const kz=kayakPose(G.kp,t);P.pad.rotation.set(0,kz.th*.9,kz.side*-.45);}
   else if(P.pad){const aL=G.sa.L,aR=G.sa.R;let z=0,y=0;if(aL.t<1){z=.55*Math.sin(aL.t*Math.PI);y=lerp(-.6,.6,aL.t)*(aL.back?-1:1);}else if(aR.t<1){z=-.55*Math.sin(aR.t*Math.PI);y=lerp(.6,-.6,aR.t)*(aR.back?-1:1);}else z=Math.sin(t*1.5)*.08;P.pad.rotation.set(0,y,z);}
-  // chase camera, looking downstream
-  const fwd=R3.v1.set(W.dcx(b.y),0,-1).normalize(),hd=R3.v2.set(sh,0,-chh);fwd.lerp(hd,.15).normalize();
-  const des=R3.v3.copy(bm.position).addScaledVector(fwd,-235);des.y=bm.position.y+140;
-  const look=R3.v4.copy(bm.position).addScaledVector(fwd,230);look.y=bm.position.y+4;
-  const kk=1-Math.exp(-dt*3.5);
+  // chase camera, looking downstream. In big rapids: first person, low in the bow, rolling with the boat.
+  const fwd=R3.v1.set(W.dcx(b.y),0,-1).normalize(),hd=R3.v2.set(sh,0,-chh);fwd.lerp(hd,R3.pov?.55:.15).normalize();
+  const des=R3.v3,look=R3.v4;
+  if(R3.pov){des.copy(bm.position).addScaledVector(fwd,c.len*.42);des.y=bm.position.y+(flipped?-10:34)+Math.max(0,(hb+hs)/2-bm.position.y)*.3;
+    look.copy(des).addScaledVector(fwd,420);look.y=des.y-30+pitch*160;
+    if(G.b.bounce>.25||G.shake>6){const L=$('lens');if(L&&!(R3.lensT>G.t)){R3.lensT=G.t+.9;L.style.transition='none';L.style.opacity=1;requestAnimationFrame(()=>{L.style.transition='opacity 1.1s';L.style.opacity=0;});}}}
+  else{des.copy(bm.position).addScaledVector(fwd,-235);des.y=bm.position.y+140;look.copy(bm.position).addScaledVector(fwd,230);look.y=bm.position.y+4;}
+  const kk=1-Math.exp(-dt*(R3.pov?9:3.5));
   if(!R3.camInit){R3.camPos.copy(des);R3.camLook.copy(look);R3.camInit=true;}else{R3.camPos.lerp(des,kk);R3.camLook.lerp(look,kk);}
   R3.camera.position.copy(R3.camPos);R3.camera.position.x+=(Math.random()-.5)*G.shake*.8;R3.camera.position.y+=(Math.random()-.5)*G.shake*.8;
-  R3.camera.lookAt(R3.camLook);
+  R3.camera.lookAt(R3.camLook);if(R3.pov)R3.camera.rotateZ(-roll*.9);
   const cdx=R3.camLook.x-R3.camPos.x,cdz=R3.camLook.z-R3.camPos.z;G.camera.camH=Math.atan2(cdx,-cdz);
   const pr=bm.position.clone().project(R3.camera);G.bsx=(pr.x*.5+.5)*VW;G.bsy=(-pr.y*.5+.5)*VH;
   R3.sun.position.set(R3.camPos.x-300,800,R3.camPos.z+250);

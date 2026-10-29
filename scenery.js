@@ -60,6 +60,7 @@ const SCN={
     for(const j of (SCN_BUNGEE[key]||[])){const y=W.yAtMile(j.m);if(y!==null)S.bungee.push({y,t:Math.random()*4});}
     for(const r of W.rapids)if(r.fall)S.falls.push({y:r.y0+r.L*.32,h:r.fall});
     for(const k of['knobs','trees','tam','bould','fans','hood','jumps','swim','sun','casc','ice','reeds'])S[k].sort((a,b)=>a.y-b.y);
+    if(W.pk&&W.pockets&&W.pockets.length)for(const k in S){const A=S[k];if(Array.isArray(A))for(const it of A)if(it&&typeof it.y==='number'&&it.side&&typeof it.off==='number')it.off+=W.pk(it.y,it.side);}
     W.scn=S;},
   bx(W,y,side,off){return W.cx(y)+side*(W.hw(y)+off);},
   /* ---------- update: jumpers and the train ---------- */

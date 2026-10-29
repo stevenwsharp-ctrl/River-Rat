@@ -83,6 +83,9 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 #banner .bt{font-weight:800;font-size:18px}
 #banner .bc{color:var(--acc);font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase}
 #banner .bb{font-size:14px;color:#d6ebe8;margin-top:4px;line-height:1.35}
+#banner .tr{margin-top:6px;font-size:13px;line-height:1.35;color:#e8f3f1;border-top:1px solid rgba(255,255,255,.15);padding-top:5px}#banner .tr div{margin-top:2px}
+.pinpulse{animation:pinp .35s ease-in-out infinite alternate;box-shadow:0 0 0 4px #ff6b5b!important}@keyframes pinp{from{filter:brightness(1)}to{filter:brightness(1.6)}}
+#lens{position:fixed;inset:0;pointer-events:none;z-index:6;opacity:0;transition:opacity .9s;background:radial-gradient(circle at 20% 30%,rgba(220,240,255,.35) 0 3%,transparent 4%),radial-gradient(circle at 70% 22%,rgba(220,240,255,.3) 0 4%,transparent 5%),radial-gradient(circle at 55% 70%,rgba(220,240,255,.28) 0 5%,transparent 6%),radial-gradient(circle at 85% 60%,rgba(220,240,255,.3) 0 2.5%,transparent 3.5%),radial-gradient(circle at 35% 82%,rgba(220,240,255,.25) 0 3%,transparent 4%),radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.25),transparent 60%)}
 #fact{position:fixed;left:10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 110px);width:min(80vw,380px);background:rgba(60,40,20,.93);border:2px solid #f2e3c4;border-radius:12px;padding:10px 12px;z-index:12;display:none;cursor:pointer}
 #fact .fk{font-size:11px;font-weight:800;letter-spacing:1px;color:#f2c98a;text-transform:uppercase}
 #fact .ft{font-weight:800;font-size:16px;margin:2px 0}
@@ -211,7 +214,7 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 
 /* phones: smaller popups that do not cover the river */
 @media (max-width:600px){
- #banner{padding:6px 10px;width:min(86vw,420px);top:calc(max(8px,env(safe-area-inset-top)) + 70px)}#banner .bt{font-size:15px}#banner .bb{font-size:12.5px;max-height:3.2em;overflow:hidden}
+ #banner{padding:6px 10px;width:min(86vw,420px);top:calc(max(8px,env(safe-area-inset-top)) + 70px)}#banner .bt{font-size:15px}#banner .bb{font-size:12.5px;max-height:3.2em;overflow:hidden}#banner .tr{font-size:11.5px}
  #fact{width:min(66vw,300px);padding:7px 9px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 150px)}#fact .fimg{display:none}#fact .ft{font-size:14px}#fact .fb{font-size:12px;max-height:4.3em;overflow:hidden}
  #coach{font-size:13px;padding:7px 10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 160px)}
  #toast{font-size:clamp(17px,4.6vw,28px);top:30%}
@@ -272,6 +275,7 @@ h1{font-weight:700;letter-spacing:.2px}h2{font-weight:600}
 <div id="fact"></div>
 <div id="toast"></div>
 <div id="pops"></div>
+<div id="lens"></div>
 <div id="boostBox"><button id="bBoost">⚡ BOOST</button><div class="sb"><div id="boostFill"></div></div></div>
 <div id="toWarn"></div>
 <div id="coach"></div>
@@ -370,21 +374,21 @@ h1{font-weight:700;letter-spacing:.2px}h2{font-weight:600}
 <div id="end" class="screen"><div class="wrap center" id="endWrap"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="rivers.js?v=1.9.0"></script>
-<script src="river-geo.js?v=1.9.0"></script>
-<script src="world-rivers.js?v=1.9.0"></script>
-<script src="game.js?v=1.9.0"></script>
-<script src="trip.js?v=1.9.0"></script>
-<script src="scenes.js?v=1.9.0"></script>
-<script src="pixel.js?v=1.9.0"></script>
-<script src="wild.js?v=1.9.0"></script>
-<script src="map.js?v=1.9.0"></script>
-<script src="frogger.js?v=1.9.0"></script>
-<script src="market.js?v=1.9.0"></script>
-<script src="runs.js?v=1.9.0"></script>
-<script src="map-hd.js?v=1.9.0" defer></script>
-<script src="three-d.js?v=1.9.0"></script>
-<script src="scenery.js?v=1.9.0"></script>
+<script src="rivers.js?v=1.10.0"></script>
+<script src="river-geo.js?v=1.10.0"></script>
+<script src="world-rivers.js?v=1.10.0"></script>
+<script src="game.js?v=1.10.0"></script>
+<script src="trip.js?v=1.10.0"></script>
+<script src="scenes.js?v=1.10.0"></script>
+<script src="pixel.js?v=1.10.0"></script>
+<script src="wild.js?v=1.10.0"></script>
+<script src="map.js?v=1.10.0"></script>
+<script src="frogger.js?v=1.10.0"></script>
+<script src="market.js?v=1.10.0"></script>
+<script src="runs.js?v=1.10.0"></script>
+<script src="map-hd.js?v=1.10.0" defer></script>
+<script src="three-d.js?v=1.10.0"></script>
+<script src="scenery.js?v=1.10.0"></script>
 <script>boot();
 window.APP_VERSION='1.7.0';
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>

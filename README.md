@@ -128,7 +128,7 @@ Facts are short summaries for a game. Some miles are approximate.
 
 ## Updating the game
 
-When you change a file, raise the version number `1.9.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
+When you change a file, raise the version number `1.10.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
 
 ## Rat Crossing (Frogger mode)
 
@@ -156,9 +156,25 @@ On flat water these rivers get at least 600 pixels of screen per mile, so the be
 
 The world rivers have no USGS data. Their bends are made by the game.
 
+## Big rapids: first person and training
+
+The biggest rapids (Class IV+ or 8+ on the Grand Canyon scale, and rapids marked `major:true`) put you low in the bow, in first person and in slow motion. The view rolls and pitches with the boat, and spray hits the lens. Settings → "Big rapids: chase cam" turns it off.
+
+Each big rapid can have `train` data from river guides: the good line and the bad lines, with what happens there. The scout card shows them before the rapid. If you swim or hit something, a debrief tells you what went wrong and what the real line is. Now on: Horn Creek, Hermit, Crystal, Bedrock, Lava Falls, Skull, Big Drop 2, Big Drop 3 and Pillow Rock.
+
+New rapid features (in `haz`):
+- `island`: a long rock that splits the river (Bedrock, the Rock Garden in Crystal).
+- `pin: true` on a rock or island: the current can pin the boat. Tap ⚡ BOOST twice to high-side and slide off, or the boat wraps and flips.
+- `room`: a room cut into the wall (`side`, `v0`, `v1`, depth `d`). The Room of Doom is one.
+- `whirl`: a circling eddy that traps the boat.
+- `lat`: a current that pushes the boat sideways (into a wall, a hole or an island).
+- `len` on a rapid makes it longer on screen, so there is more time to react.
+
+After a scout point, a stop or a warning, the game keeps at least 1,150 pixels (about 7 seconds) before the next rapid. The Lava Falls scout is on river right, on a lava outcrop above the rapid.
+
 ## Westwater Canyon
 
-Westwater uses the miles from the ranger station (BLM and American Whitewater). Skull Rapid is at mile 10.43. Run center to left of Skull Hole. Below it, the Rock of Shock on the right wall feeds the Room of Doom, a circling eddy on river right. The eddy traps your boat and turns it. Boost out at the top of the eddy. In high water the eddy is stronger.
+Westwater uses the miles from the ranger station (BLM and American Whitewater). Skull Rapid is at mile 10.43. Run center to left of Skull Hole. Right of the hole, the current goes into the Room of Doom: a room cut 60 to 80 feet into the right wall, with a circling eddy that traps your boat and turns it. The Rock of Shock at the bottom of the room can pin your boat. Boost out at the top of the eddy. In high water the eddy is stronger.
 
 ## Scenery
 
