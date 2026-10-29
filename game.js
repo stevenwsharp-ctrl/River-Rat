@@ -267,7 +267,7 @@ function buildMenu(){
     const ok=riverOK(R,sel.mode),tops=LB.top(R.id,sel.mode,'score',3),fast=LB.top(R.id,sel.mode,'time',1)[0];
     const d=document.createElement('div');d.className='card river'+(sel.river===R.id?' sel':'')+(ok?'':' dim');
     const lbRows=tops.length?tops.map((t,i)=>`<div class="lbr"><span>${['🥇','🥈','🥉'][i]} ${esc(t.name)}</span><span>${CRAFTS[t.craft]?CRAFTS[t.craft].name.split(' ').pop():''}</span><b>${t.score}</b></div>`).join(''):'<div class="lbr empty">No runs yet. Be the first!</div>';
-    d.innerHTML=`<div class="tag">${R.scale==='gc'?`CLASS ${lo.c}–${hi.c} / 10`:`CLASS ${lo.c}–${hi.c}`}</div><h3>${R.name}</h3><div class="where">${R.cont&&R.cont!=='North America'||R.country&&R.country!=='USA'?'🌍 '+esc(R.country||R.cont)+' · ':''}${R.river} · ${R.stretch}${R.waterF?` · 🌡 ${R.waterF}°F water`:''}</div><p>${R.blurb}</p>
+    d.innerHTML=`<div class="tag">${R.scale==='gc'?`CLASS ${lo.c}–${hi.c} / 10`:`CLASS ${lo.c}–${hi.c}`}</div><h3>${R.name}${PASSPORT.get()[R.id]?' <span class="stamp" title="Passport stamp">🛂</span>':''}</h3><div class="where">${R.cont&&R.cont!=='North America'||R.country&&R.country!=='USA'?'🌍 '+esc(R.country||R.cont)+' · ':''}${R.river} · ${R.stretch}${R.waterF?` · 🌡 ${R.waterF}°F water`:''}</div><p>${R.blurb}</p>
       <div class="lb"><div class="lbh">🏆 Top ${MODES[sel.mode].name} scores</div>${lbRows}<div class="lbf">⏱ Fastest: ${fast?`<b>${fmtTime(fast.time)}</b> · ${esc(fast.name)}`:'—'}</div></div>
       ${ok?`<button class="run">▶ Run this river</button>`:`<div class="note2">${R.expOnly?'Expedition only: pick Expedition above.':'Day trip only (no camping in this canyon).'}</div>`}`;
     d.onclick=e=>{if(!ok)return;sel.river=R.id;if(e.target.classList.contains('run')){startFlow();return;}buildMenu();};
@@ -282,6 +282,8 @@ function buildMenu(){
   const dg=$('d3');dg.innerHTML='';
   [['big','Big rapids','Class III+ / GC 5+, landmarks, bridges'],['all','Every rapid','more 3D, more paddling'],['off','Off','2D only']].forEach(([k,n,dd])=>{const b=document.createElement('button');b.className='pill'+(sel.d3===k?' sel':'');b.innerHTML=`${n}<small>${HAS3D()||k==='off'?dd:'needs internet (three.js)'}</small>`;b.onclick=()=>{sel.d3=k;buildMenu();};dg.appendChild(b);});
   if($('retroBtn')){$('retroBtn').textContent=sel.retro!==false?'🕹 Retro art: ON':'🕹 Retro art: OFF';$('retroBtn').classList.toggle('sel',sel.retro!==false);}
+  if($('playBtn')){const R=RIVERS.find(r=>r.id===sel.river);$('playBtn').innerHTML=`▶ PLAY<small style="display:block;font-size:13px;font-weight:600;opacity:.85">${esc(R.name)} · ${CRAFTS[sel.craft].name} · ${MODES[riverOK(R,sel.mode)?sel.mode:'day'].name}</small>`;}
+  if($('dailyBtn')){const c=DAILY.cfg(),t=DAILY.today(),st=DAILY.streak();$('dailyBtn').innerHTML=t?`✅ Daily River #${t.n} done · ${t.score.toLocaleString()}<small style="display:block;font-size:13px;font-weight:600">${t.grid} · tap to share${st>1?` · 🔥${st}`:''}</small>`:`📅 Daily River #${c.n}<small style="display:block;font-size:13px;font-weight:600">${esc(c.R.name)} · ${CRAFTS[c.craft].name} · ${LEVELS[c.level].name} water${st>1?` · 🔥${st}-day streak`:''}</small>`;}
   if($('frogBtn')){const fh=store.get('riverrat_frog_hi',[])[0];$('frogBtn').textContent=`🐸 Rat Crossing · Frogger mode${fh?` · best ${fh.score}`:''}`;}
   $('factsBtn').textContent=sel.facts?'📜 History & facts: ON':'📜 History & facts: OFF';
   $('tipsBtn').textContent=sel.tips?'💡 Tips: ON':'💡 Tips: OFF';$('tipsBtn').classList.toggle('sel',sel.tips);
@@ -292,6 +294,8 @@ function buildMenu(){
 }
 $('pname').addEventListener('input',e=>{sel.name=(e.target.value||'Boatman').slice(0,18);saveSel();});
 $('factsBtn').onclick=()=>{sel.facts=!sel.facts;buildMenu();};
+if($('playBtn'))$('playBtn').onclick=()=>{const R=RIVERS.find(r=>r.id===sel.river);if(!riverOK(R,sel.mode))sel.mode=R.expOnly?'expedition':'day';startFlow();};
+if($('dailyBtn'))$('dailyBtn').onclick=()=>{const t=DAILY.today();if(t){SHARE.text(DAILY.text(t),$('dailyBtn'));return;}DAILY.start();};
 if($('frogBtn'))$('frogBtn').onclick=()=>{saveSel();if(typeof initTex2==='function')try{initTex2();}catch(e){}FROG.open();};
 if($('retroBtn'))$('retroBtn').onclick=()=>{sel.retro=!sel.retro;if(typeof MAP!=='undefined')MAP.dirty=true;buildMenu();};
 $('tipsBtn').onclick=()=>{sel.tips=!sel.tips;if(sel.tips)store.set('riverrun_coach',[]);buildMenu();};
@@ -332,7 +336,7 @@ function startFlow(){
   else startGame();
 }
 function startGame(levelOverride){
-  AU.init();AU.resume();
+  AU.init();AU.resume();if(typeof ADS!=='undefined')ADS.start();
   const R=RIVERS.find(r=>r.id===sel.river),c=CRAFTS[sel.craft];
   const lvKey=levelOverride||sel.level,lv=LEVELS[lvKey];
   const uu=(store.get('riverrun_upg',{})[sel.craft])||{},upg={hand:1+.12*(uu.hand||0),pow:1+.1*(uu.pow||0),hull:1+.2*(uu.hull||0)};
@@ -358,7 +362,7 @@ function startGame(levelOverride){
   setCtrlLabels();
   $('toWarn').style.display='none';G.W.stops.forEach(s=>s.done=false);
   setTimeout(()=>{if(G&&G.t<6)coach('click');},1500);
-  if(!isTouch()&&!store.get('riverrun_mousetip',false)){toast('Mouse: hold LEFT = row toward pointer · hold RIGHT = pull toward pointer · double-click & hold = square up','#cfe3e0',6);store.set('riverrun_mousetip',true);}
+  if(!isTouch()&&!store.get('riverrun_mousetip',false)){toast(sel.ctrl==='pro'?'Mouse: hold LEFT = row toward pointer · hold RIGHT = pull toward pointer':'Click or drag on the water to steer there · arrows/WASD · E = boost','#cfe3e0',3.5);store.set('riverrun_mousetip',true);}
 }
 /* Rebuild the river at a new water level (used after a flood at camp). */
 function rebuildLevel(lvKey){
@@ -410,12 +414,14 @@ function powerMul(){return (G.swim?.85:1)*TRIP.powerMul();}
 
 /* ================= MESSAGES ================= */
 function toast(txt,col,dur){const el=$('toast');el.textContent=txt;el.style.color=col||'#fff';el.style.opacity=1;el.style.fontSize=txt.length>40?'clamp(15px,3.5vw,22px)':'';if(G)G.toastT=dur||1.3;else setTimeout(()=>el.style.opacity=0,(dur||1.3)*1000);}
-function showBanner(r){const el=$('banner');el.innerHTML=`<div class="bc">Scout · ${clsText(G.river,r.c)} · Mile ${r.m}</div><div class="bt">${r.n}</div><div class="bb">${r.beta}</div>`;el.style.display='block';G.bannerT=7;}
+function showBanner(r){const el=$('banner');el.innerHTML=`<div class="bc">Scout · ${clsText(G.river,r.c)} · Mile ${r.m}</div><div class="bt">${r.n}</div><div class="bb">${r.beta}</div>`;el.style.display='block';G.bannerT=isTouch()?3.2:5;$('fact').style.display='none';$('coach').style.display='none';}
 function hideBanner(){$('banner').style.display='none';}
 $('banner').onclick=hideBanner;
-function showFact(p){const el=$('fact');el.innerHTML=`<div class="fk">${KIND_ICON[p.k]||'📍'} Mile ${p.m} · ${p.k==='town'?'Town & access':p.k==='geo'?'Geology':p.k==='nat'?'Nature':p.k==='art'?'Rock art':p.k==='fest'?'Festival':p.k==='warn'?'River note':'History'}</div><div class="ft">${esc(p.n)}</div><img class="fimg" src="${SCENE.thumb(sceneSpec(p.scene||'canyon',p.id))}" alt=""><div class="fb">${esc(p.txt)}</div>`;el.style.display='block';G.factT=10;AU.chime();}
+function showFact(p){if(G&&($('banner').style.display==='block'||G.W.rint(G.b.y)>.1||G.mode3d)){G.factPending=p;return;}G.factPending=null;const el=$('fact');el.innerHTML=`<div class="fk">${KIND_ICON[p.k]||'📍'} Mile ${p.m} · ${p.k==='town'?'Town & access':p.k==='geo'?'Geology':p.k==='nat'?'Nature':p.k==='art'?'Rock art':p.k==='fest'?'Festival':p.k==='warn'?'River note':'History'}</div><div class="ft">${esc(p.n)}</div><img class="fimg" src="${SCENE.thumb(sceneSpec(p.scene||'canyon',p.id))}" alt=""><div class="fb">${esc(p.txt)}</div>`;el.style.display='block';G.factT=isTouch()?5:8;AU.chime();}
 function hideFact(){$('fact').style.display='none';G&&(G.factT=0);}
 $('fact').onclick=hideFact;
+$('coach').onclick=()=>{$('coach').style.display='none';};
+$('badgeToast').onclick=()=>{$('badgeToast').style.display='none';};
 function openPage(p){
   G.prevState=G.state;G.state='page';AU.chime();bump('pages');
   SCENE.open({spec:sceneSpec(p.scene||'canyon',p.id),big:true,kicker:`${KIND_ICON[p.k]||'📍'} ${esc(G.river.name)} · Mile ${p.m}`,title:p.n,sub:p.page.sub,
@@ -523,7 +529,7 @@ function updDebris(dt){
 /* ================= END GAME ================= */
 function endGame(ok,reason){
   if(!G||G.state==='done')return;
-  if(G.mode3d)exit3D();G.state='done';AU.roar(0);
+  if(G.mode3d)exit3D();G.state='done';AU.roar(0);if(typeof ADS!=='undefined')ADS.stop();
   const total=G.W.rapids.length;let grade='DNF';
   const extra=TRIP.onEnd(ok);
   if(ok){const p=100-G.swims*25-(1-G.hp/G.hpMax)*30-(1-G.clean/total)*30+extra.gradeAdj;grade=p>=85?'A':p>=70?'B':p>=55?'C':'D';G.score+=Math.round(G.hp/G.hpMax*300)+extra.bonus;}
@@ -542,12 +548,17 @@ function endGame(ok,reason){
    <div class="rank">💰 +${earned} River Bucks (total ${store.get('riverrun_bucks',0)})</div>${missionsHtml()}
    ${extra.html||''}
    <button class="big" id="againBtn">Run it again</button><button class="ghost" id="endMenuBtn">Main menu & leaderboards</button>`;
+  {const ag=$('againBtn');let h='';if(ok){const nw=PASSPORT.stamp(G.river,sc);if(nw)h+=`<div class="rank stamp">🛂 New passport stamp: ${esc(G.river.name)} (${PASSPORT.count()}/${RIVERS.length} rivers)</div>`;}
+    if(G.daily)h+=DAILY.endHtml(ok);else h+=`<button class="ghost" id="shareRun">📤 Share this run</button>`;
+    if(ADS.has()&&earned>0)h+=`<button class="ghost" id="adBucks">🎬 Watch an ad: double your River Bucks (+${earned})</button>`;
+    const gr=$('endWrap').querySelector('.grade');(G.daily&&gr?gr:ag).insertAdjacentHTML(G.daily&&gr?'afterend':'beforebegin',h);DAILY.bindShare();const sr=$('shareRun');if(sr)sr.onclick=()=>SHARE.text(SHARE.runText(ok),sr);
+    const ab=$('adBucks');if(ab)ab.onclick=()=>ADS.rewarded(w=>{if(w){addBucks(earned);ab.textContent=`✅ +${earned} River Bucks`;ab.disabled=true;}});}
   $('end').style.display='block';
   {const cv=$('endArt'),t0=performance.now();const f=()=>{if($('end').style.display==='none'||!cv.isConnected)return;PIX.endArt(cv,ek,(performance.now()-t0)/1000,G&&G.river);setTimeout(()=>requestAnimationFrame(f),80);};f();}
   $('againBtn').onclick=()=>startFlow();$('endMenuBtn').onclick=toMenu;
   setTimeout(()=>AU.suspend(),400);
 }
-function toMenu(){if(G)cleanup3D();G=null;SCENE.close();for(const id of ['hud','hbtns','boostBox','controls','pause','end','campScreen','outfit','lbScreen','toWarn','coach'])$(id).style.display='none';hideBanner();$('fact').style.display='none';buildMenu();$('menu').style.display='block';AU.roar(0);}
+function toMenu(){if(typeof DAILY!=='undefined')DAILY.restore();if(G)cleanup3D();G=null;SCENE.close();for(const id of ['hud','hbtns','boostBox','controls','pause','end','campScreen','outfit','lbScreen','toWarn','coach'])$(id).style.display='none';hideBanner();$('fact').style.display='none';buildMenu();$('menu').style.display='block';AU.roar(0);}
 function togglePause(){if(!G||['done','camp','page','scene'].includes(G.state))return;
   if(G.state==='pause'){G.state=G.prevState;$('pause').style.display='none';AU.resume();}
   else{G.prevState=G.state;G.state='pause';$('pauseInfo').textContent=`${G.river.name} · Mile ${G.W.mileAt(G.b.y).toFixed(1)}${G.mode!=='day'?` · Day ${TRIP.day()}`:''}`;$('pFacts').textContent=sel.facts?'History & facts: ON':'History & facts: OFF';$('pCtrl').textContent='Controls: '+(sel.ctrl==='pro'?'Pro (real oars)':'Arcade (easy)');$('pause').style.display='block';AU.suspend();}}
@@ -867,7 +878,7 @@ const COACH={hippo:'Hippos rest in deep water. Stay near the shallow bank and gi
   stop:'Optional stop ahead! Land on the beach to hike, swim or eat lunch.',ff:'Calm water: tap ⏩ (or F) to fast-forward.',
   flip:'Flipped! Next time square up and push hard through holes.',camp:'Camp tonight! Pull into the eddy next to the beach and touch the shore.',
   takeout:'The take-out is ahead. Steer to the ramp and touch it. Do not miss it!'};
-function coach(id){const seen=store.get('riverrun_coach',[]);if(seen.includes(id)||!COACH[id]||!sel.tips)return;seen.push(id);store.set('riverrun_coach',seen);const el=$('coach');el.innerHTML=`💡 ${COACH[id]}`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',7000);}
+function coach(id){const seen=store.get('riverrun_coach',[]);if(seen.includes(id)||!COACH[id]||!sel.tips)return;seen.push(id);store.set('riverrun_coach',seen);const el=$('coach');el.innerHTML=`💡 ${COACH[id]}`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',isTouch()?4000:6000);}
 function coachDone(){const el=$('coach');if(el.style.display==='block'&&/Tap or click/.test(el.textContent))el.style.display='none';}
 
 /* ================= BADGES ================= */
@@ -878,7 +889,7 @@ const BADGES=[['first','First Descent','Finish any river.'],['falls','Waterfall 
   ['flood','Flood Rider','Finish a river at Flood water.'],['dory','Dory Master','Finish a Grand Canyon section in a dory with no swims.'],['tube','Tube Legend','Finish a Class IV+ river in an inner tube.'],
   ['ghost','Ghost Buster','Beat your own ghost.'],['full','The Whole Canyon','Finish the full Grand Canyon expedition.']];
 function award(id){const have=store.get('riverrun_badges',[]);if(have.includes(id))return;have.push(id);store.set('riverrun_badges',have);const b=BADGES.find(x=>x[0]===id);if(!b)return;
-  const el=$('badgeToast');el.innerHTML=`🏅 <b>New badge:</b> ${b[1]}<br><small>${b[2]}</small>`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',4200);AU.chime();}
+  const el=$('badgeToast');el.innerHTML=`🏅 <b>New badge:</b> ${b[1]}<br><small>${b[2]}</small>`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',3000);AU.chime();}
 function bump(k){const c=store.get('riverrun_counts',{});c[k]=(c[k]||0)+1;store.set('riverrun_counts',c);
   if(k==='pages'&&c[k]>=10)award('history');if(k==='lunch'&&c[k]>=3)award('lunch');if(k==='explore'&&c[k]>=10)award('explore');if(k==='rescues'&&c[k]>=3)award('life');if(k==='nights'&&c[k]>=5)award('camp');}
 function endBadges(){award('first');const R=G.river;if(G.clean===G.W.rapids.length&&G.W.rapids.length>0)award('clean');if(G.lvlKey==='flood')award('flood');
@@ -1102,7 +1113,8 @@ function updHud(dt){
   const b=G.b,W=G.W;
   G.toastT-=dt;if(G.toastT<=0)$('toast').style.opacity=0;
   if(G.bannerT>0){G.bannerT-=dt;if(G.bannerT<=0)hideBanner();}
-  if(G.factT>0){G.factT-=dt;if(G.factT<=0)hideFact();}
+  if(G.factT>0){G.factT-=dt;if(G.factT<=0||G.W.rint(G.b.y)>.15)hideFact();}
+  if(G.factPending&&!(G.factT>0)&&$('banner').style.display!=='block'&&G.W.rint(G.b.y)<.05&&!G.mode3d&&G.state==='run')showFact(G.factPending);
   G.hudT-=dt;if(G.hudT>0)return;G.hudT=.1;
   {const z=W.zoneAtMile(W.mileAt(b.y));if(z&&z!==G.zone){if(G.zone)toast(`Entering ${z.name}`,'#cfe3e0',1.6);G.zone=z;G.pal=z.pal;}}
   if(G.t>25&&G.state==='run'&&ffOK())coach('ff');

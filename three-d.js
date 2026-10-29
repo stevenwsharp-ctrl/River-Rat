@@ -281,7 +281,7 @@ function enter3D(ch){
   R3.scene.background=new THREE.Color(ch.sky);R3.scene.fog=new THREE.Fog(new THREE.Color(ch.sky).lerp(new THREE.Color(0x9a8f80),.25),1100,4200);
   G.mode3d=true;G.slowT=.9;$('g3').style.display='block';$('tag3d').style.display='block';flash();AU.splash(.9);
   const P=sel.ctrl==='pro'?G.craft.pd:null,el=$('p3d');
-  el.innerHTML=`<b>3D · ${P?P.name:'ROW!'}</b><span>${esc(ch.title)}<br>${P?(isTouch()?P.help:P.keys):'Same controls as 2D. Drag or tap to move. ⚡ boost through holes!'}</span>`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',4200);
+  el.innerHTML=`<b>3D · ${P?P.name:'ROW!'}</b><span>${esc(ch.title)}<br>${P?(isTouch()?P.help:P.keys):'Same controls as 2D. Drag or tap to move. ⚡ boost through holes!'}</span>`;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(()=>el.style.display='none',2600);
   setBtnLabels(true);$('stroke').style.display=P?'block':'none';G.rhythm=0;G.strokeReady=0;hideFact();
 }
 function exit3D(){

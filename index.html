@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>River Rat</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="description" content="River Rat: run real whitewater rivers around the world. Rapids, expeditions, wildlife, history and Rat Crossing.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%233f7f6f'/%3E%3Cpath d='M8 40 Q20 30 32 40 T56 40' stroke='white' stroke-width='5' fill='none'/%3E%3Crect x='24' y='14' width='16' height='26' rx='8' fill='%23f0b429'/%3E%3C/svg%3E">
@@ -115,7 +118,7 @@ details li{margin:4px 0;color:#cfe3e0;font-size:14px}
 #progCv{width:100%;height:14px;display:block;flex-basis:100%;margin-bottom:4px}
 #toWarn{position:fixed;left:50%;top:calc(max(8px,env(safe-area-inset-top)) + 150px);transform:translateX(-50%);background:#b3261e;color:#fff;font-weight:900;font-size:clamp(18px,4vw,28px);padding:10px 18px;border-radius:12px;z-index:13;display:none;pointer-events:none;animation:pulse .7s infinite alternate;box-shadow:0 0 30px rgba(255,0,0,.6)}
 @keyframes pulse{from{transform:translateX(-50%) scale(1)}to{transform:translateX(-50%) scale(1.07)}}
-#coach{position:fixed;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 110px);transform:translateX(-50%);width:min(92vw,560px);background:rgba(20,40,60,.92);border:2px solid #7fc8ff;border-radius:14px;padding:10px 14px;z-index:13;display:none;font-size:15px;line-height:1.4;pointer-events:none}
+#coach{position:fixed;left:50%;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 110px);transform:translateX(-50%);width:min(92vw,560px);background:rgba(20,40,60,.92);border:2px solid #7fc8ff;border-radius:14px;padding:10px 14px;z-index:13;display:none;font-size:15px;line-height:1.4;pointer-events:auto;cursor:pointer}
 #badgeToast{position:fixed;right:12px;top:calc(max(8px,env(safe-area-inset-top)) + 130px);background:rgba(60,45,10,.95);border:2px solid #ffd36b;border-radius:12px;padding:10px 14px;z-index:14;display:none;max-width:280px}
 .chip.streak{background:#b3561e}.chip.ghost{background:#3b3b6b}
 #fact .fimg{display:block;width:100%;border-radius:8px;margin:6px 0}
@@ -205,6 +208,24 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 #frogPanel h1{margin:4px 0 8px}#frogPanel p{line-height:1.45}
 .frogscore{display:flex;flex-direction:column;gap:3px;background:rgba(0,0,0,.3);border-radius:10px;padding:10px 12px;margin:10px 0;font-size:14px}.frogscore b{color:var(--acc)}
 #frogBtn{display:block;width:100%;max-width:none;margin:4px 0 14px;background:linear-gradient(90deg,#2e9a58,#3fae4a);color:#fff}
+
+/* phones: smaller popups that do not cover the river */
+@media (max-width:600px){
+ #banner{padding:6px 10px;width:min(86vw,420px);top:calc(max(8px,env(safe-area-inset-top)) + 70px)}#banner .bt{font-size:15px}#banner .bb{font-size:12.5px;max-height:3.2em;overflow:hidden}
+ #fact{width:min(66vw,300px);padding:7px 9px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 150px)}#fact .fimg{display:none}#fact .ft{font-size:14px}#fact .fb{font-size:12px;max-height:4.3em;overflow:hidden}
+ #coach{font-size:13px;padding:7px 10px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 160px)}
+ #toast{font-size:clamp(17px,4.6vw,28px);top:30%}
+ #p3d{padding:6px 10px;font-size:13px}
+ #badgeToast{padding:7px 10px;font-size:13px;max-width:220px}
+}
+
+.hero{display:grid;grid-template-columns:2fr 2fr;gap:10px;margin:6px 0 12px}.hero .big{margin:0;max-width:none;width:100%}
+#playBtn{grid-column:1/-1;font-size:22px;padding:16px;background:linear-gradient(90deg,#ffb347,#ff8a3a)}
+#dailyBtn{background:linear-gradient(90deg,#3a7bd5,#5fa0ea);color:#fff}#frogBtn{margin:0}
+@media (max-width:600px){.hero{grid-template-columns:1fr}.topbar .ghost{font-size:13px;padding:7px 10px;margin:3px 2px}.topbar input{width:100%}}
+details.opts{background:rgba(0,0,0,.18);border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:10px 0}details.opts summary{cursor:pointer;font-weight:700;color:var(--acc)}
+.dailybox{background:rgba(58,123,213,.15);border:1px solid #3a7bd5;border-radius:12px;padding:10px 12px;margin:10px auto;max-width:520px;text-align:center}.dgrid{font-size:26px;letter-spacing:2px;margin:6px 0;word-break:break-all}
+.stamp{color:#ffe25a;font-weight:700}
 </style>
 </head>
 <body>
@@ -240,8 +261,11 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 <div id="menu" class="screen"><div class="wrap">
   <h1 style="position:absolute;left:-9999px">River Rat</h1>
   <canvas id="titleCv" aria-label="River Rat title picture"></canvas>
-  <div class="sub">Read the water. Square up to the waves. Do not swim.</div>
-  <button class="big" id="frogBtn">🐸 Rat Crossing · Frogger mode</button>
+  <div class="hero">
+    <button class="big" id="playBtn">▶ PLAY</button>
+    <button class="big" id="dailyBtn">📅 Daily River</button>
+    <button class="big" id="frogBtn">🐸 Rat Crossing · Frogger mode</button>
+  </div>
   <div class="topbar">
     <input id="pname" maxlength="18" placeholder="Your name" aria-label="Your name for leaderboards">
     <button class="ghost" id="lbBtn">🏆 Leaderboards</button>
@@ -252,22 +276,24 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
     <button class="ghost" id="shopBtn">🛠 Boat shop</button>
     <button class="run" id="contBtn" style="display:none;width:auto;margin:0;padding:10px 16px"></button>
   </div>
-  <h2>1 · Trip type</h2>
-  <div id="modes" class="row"></div>
-  <h2>2 · Controls</h2>
-  <div id="ctrls" class="row"></div>
   <div class="lb" id="missionBox" style="margin-top:12px"></div>
-  <h2>3 · Pick your craft</h2>
+  <details id="moreOpts" class="opts"><summary>⚙ Trip type, controls, water level and 3D</summary>
+  <h2>Trip type</h2>
+  <div id="modes" class="row"></div>
+  <h2>Controls</h2>
+  <div id="ctrls" class="row"></div>
+  <h2>Water level</h2>
+  <div id="levels" class="row"></div>
+  <h2>3D rapids</h2>
+  <div id="d3" class="row"></div>
+  </details>
+  <h2>Pick your boat</h2>
   <div id="crafts" class="grid craftgrid"></div>
-  <h2>4 · Pick your river <span class="mute" style="text-transform:none;letter-spacing:0">(tap a flag on the map, or a card below)</span></h2>
+  <h2>Pick your river <span class="mute" style="text-transform:none;letter-spacing:0">(tap a flag on the map, or a card below)</span></h2>
   <div id="worldMap"></div>
   <div id="contChips" class="row"></div>
   <div id="rivers" class="grid"></div>
   <div class="season" id="seasonNote"></div>
-  <h2>5 · Water level</h2>
-  <div id="levels" class="row"></div>
-  <h2>6 · 3D rapids</h2>
-  <div id="d3" class="row"></div>
   <button class="big" id="startBtn">Launch</button>
   <details><summary>How to play</summary><ul>
     <li><b>Arcade controls (default):</b> drag or tap where you want to go, or use ← → (A / D). The boat moves across the current and keeps itself straight. ↑ / W = faster, ↓ / S = slower. ⚡ BOOST (E or Shift) punches through holes. Fill the boost meter with clean lines, close calls, waves and dry bags.</li>
@@ -309,18 +335,21 @@ canvas.wmap{display:block;width:100%;border-radius:14px;border:1px solid rgba(25
 <div id="end" class="screen"><div class="wrap center" id="endWrap"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="rivers.js"></script>
-<script src="world-rivers.js"></script>
-<script src="game.js"></script>
-<script src="trip.js"></script>
-<script src="scenes.js"></script>
-<script src="pixel.js"></script>
-<script src="wild.js"></script>
-<script src="map.js"></script>
-<script src="frogger.js"></script>
-<script src="map-hd.js" defer></script>
-<script src="three-d.js"></script>
-<script src="scenery.js"></script>
-<script>boot();</script>
+<script src="rivers.js?v=1.7.0"></script>
+<script src="world-rivers.js?v=1.7.0"></script>
+<script src="game.js?v=1.7.0"></script>
+<script src="trip.js?v=1.7.0"></script>
+<script src="scenes.js?v=1.7.0"></script>
+<script src="pixel.js?v=1.7.0"></script>
+<script src="wild.js?v=1.7.0"></script>
+<script src="map.js?v=1.7.0"></script>
+<script src="frogger.js?v=1.7.0"></script>
+<script src="market.js?v=1.7.0"></script>
+<script src="map-hd.js?v=1.7.0" defer></script>
+<script src="three-d.js?v=1.7.0"></script>
+<script src="scenery.js?v=1.7.0"></script>
+<script>boot();
+window.APP_VERSION='1.7.0';
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body>
 </html>

@@ -6,7 +6,7 @@ A whitewater game for computer and phone. Run real stretches of real rivers in a
 
 ## Files
 
-Put all of these files in the root of your GitHub repository (13 code files plus this README):
+Put all of these files in the root of your GitHub repository (14 code files, `sw.js`, `manifest.webmanifest`, 3 icon PNGs and this README):
 
 | File | What it does |
 |---|---|
@@ -23,6 +23,8 @@ Put all of these files in the root of your GitHub repository (13 code files plus
 | `map.js` | The world map on the main menu (Natural Earth 1:110m land, public domain). |
 | `map-hd.js` | More detailed coastlines and rivers for the world map when you zoom in. |
 | `frogger.js` | Rat Crossing: the Frogger mode. |
+| `market.js` | Daily River (same river for everyone each day, with a share grid), river passport, share buttons, and ad hooks that work only on CrazyGames or Poki. |
+| `sw.js`, `manifest.webmanifest`, `icon-*.png` | Install on a phone home screen, play offline, and always load the newest version. |
 
 ## Controls
 
@@ -105,6 +107,10 @@ Facts are short summaries for a game. Some miles are approximate.
 ## Grand Canyon data
 
 `rivers.js` has one shared Grand Canyon list (`GC_RAPIDS`, `GC_POIS`, `GC_CAMPS`, `GC_ZONES`) from Lees Ferry to Diamond Creek. The sections and the full expedition are cut from it with `gcSection()`. Change a rapid once and every section gets the change.
+
+## Updating the game
+
+When you change a file, raise the version number `1.7.0` in `index.html` (the `?v=` on each script) and in `sw.js`. Then every phone and computer loads the new files at once.
 
 ## Rat Crossing (Frogger mode)
 
